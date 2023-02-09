@@ -3,11 +3,11 @@ function connectedStatesList(json, _states) {
   let _connected = [];
   Object.entries(_states)
     .filter(([k, v]) => v === false)
-    .map((arr) => {
-      json.states.map((state) => {
+    .forEach((arr) => {
+      json.states.forEach((state) => {
         if (state.transitions) {
-          state.transitions.map((transition) => {
-            if (transition.source == arr[0]) {
+          state.transitions.forEach((transition) => {
+            if (transition.source === arr[0]) {
               _connected.push(transition.dest);
             }
           });
@@ -17,9 +17,9 @@ function connectedStatesList(json, _states) {
       _connected = [];
     });
   let keys = Object.keys(connectedStates);
-  json.states.map((state) => {
-    json.transitions.map((transition) => {
-      if (transition.source == state.name) {
+  json.states.forEach((state) => {
+    json.transitions.forEach((transition) => {
+      if (transition.source === state.name) {
         if (keys.includes(state.name))
           connectedStates[state.name].push(transition.dest);
         else {

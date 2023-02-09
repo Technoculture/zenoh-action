@@ -1,3 +1,4 @@
+#type: ignore
 import zenoh
 from zenoh import Query, Sample
 from pydantic import ValidationError

@@ -1,10 +1,10 @@
 from pydantic import BaseModel, validator
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable, List
+from typing import Any, Callable, List
 from transitions import MachineError
 
-def extract_states_from_jsonStateMachine(jsonStateMachine: dict) -> List["trigger"]:
+def extract_states_from_jsonStateMachine(jsonStateMachine: dict) -> List:
     '''
     Extracts states from jsonStateMachine.
     Args:
@@ -61,7 +61,7 @@ class Event(BaseModel):
         Returns:
             jsonStateMachine
         '''
-        if v.keys().length == 0:
+        if len(v.keys()) == 0:
             raise ValueError("State Machine in json format can't be empty.")
 
         elif v['states'] == None or v['transitions'] == None:
