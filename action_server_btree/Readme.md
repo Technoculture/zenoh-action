@@ -1,2 +1,3 @@
 ## get_tip behaviourial tree
-![Uploading WhatsApp Image 2023-02-09 at 9.18.34 AM.jpeg…]()
+(https://user-images.githubusercontent.com/44173255/217745379-1b308000-fbcf-4d7a-a39b-c8cf22743aaa.jpeg)
+
