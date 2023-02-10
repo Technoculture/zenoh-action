@@ -1,0 +1,31 @@
+digraph pastafarianism {
+ordering=out;
+graph [fontname="times-roman"];
+node [fontname="times-roman"];
+edge [fontname="times-roman"];
+get_tip [fillcolor=orange, fontcolor=black, fontsize=9, label=get_tip, shape=box, style=filled];
+tip_available [fillcolor=gray, fontcolor=black, fontsize=9, label=tip_available, shape=ellipse, style=filled];
+get_tip -> tip_available;
+prepare_tip_for_pickup [fillcolor=cyan, fontcolor=black, fontsize=9, label=prepare_tip_for_pickup, shape=octagon, style=filled];
+get_tip -> prepare_tip_for_pickup;
+pick_up_using_orchestrator [fillcolor=orange, fontcolor=black, fontsize=9, label=pick_up_using_orchestrator, shape=box, style=filled];
+get_tip -> pick_up_using_orchestrator;
+pick_up [fillcolor=gray, fontcolor=black, fontsize=9, label=pick_up, shape=ellipse, style=filled];
+pick_up_using_orchestrator -> pick_up;
+caught_tip_firm_and_orient [fillcolor=cyan, fontcolor=black, fontsize=9, label=caught_tip_firm_and_orient, shape=octagon, style=filled];
+pick_up_using_orchestrator -> caught_tip_firm_and_orient;
+dicard_tip [fillcolor=cyan, fontcolor=black, fontsize=9, label=dicard_tip, shape=octagon, style=filled];
+caught_tip_firm_and_orient -> dicard_tip;
+go_to_discard_position [fillcolor=gray, fontcolor=black, fontsize=9, label=go_to_discard_position, shape=ellipse, style=filled];
+dicard_tip -> go_to_discard_position;
+prepare_to_discard [fillcolor=gray, fontcolor=black, fontsize=9, label=prepare_to_discard, shape=ellipse, style=filled];
+dicard_tip -> prepare_to_discard;
+eject_tip [fillcolor=gray, fontcolor=black, fontsize=9, label=eject_tip, shape=ellipse, style=filled];
+dicard_tip -> eject_tip;
+discard_tip_success [fillcolor=orange, fontcolor=black, fontsize=9, label=discard_tip_success, shape=box, style=filled];
+dicard_tip -> discard_tip_success;
+retry_count_below_threshold [fillcolor=orange, fontcolor=black, fontsize=9, label=retry_count_below_threshold, shape=box, style=filled];
+discard_tip_success -> retry_count_below_threshold;
+pick_up_success [fillcolor=gray, fontcolor=black, fontsize=9, label=pick_up_success, shape=ellipse, style=filled];
+get_tip -> pick_up_success;
+}

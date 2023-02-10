@@ -1,3 +1,4 @@
+#type: ignore
 from pydantic import BaseModel, validator
 from dataclasses import dataclass
 from datetime import datetime
