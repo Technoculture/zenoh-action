@@ -49,7 +49,5 @@ class Pipette:
     def discard_tip_success(self, obj: DiscardTipSuccess) -> py_trees.common.Status:
         return obj.discard_tip_success()
 
-
-
 if __name__ == "__main__":
     pass
