@@ -1,112 +1,107 @@
-from typing import Protocol
+from typing import Protocol, Iterator
 import logging
+import zenoh
+from contextlib import contextmanager
+import time
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-class TipAvailable(Protocol):
-    def tip_available(self) -> bool:
-        ...
-class TipAvailableInTray(Protocol):
-    def tip_available_in_tray(self) -> bool:
-        ...
-class DiscardCurrentTray(Protocol):
-    def discard_current_tray(self) -> bool:
-        ...
-class TrayAvailable(Protocol):
-    def tray_available(self) -> bool:
-        ...
-class SliderMoveToLoad(Protocol):
-    def slider_move_to_load(self) -> bool:
-        ...
-class LoadNextTray(Protocol):
-    def load_next_tray(self) -> bool:
-        ...
-class PrepareToDiscard(Protocol):
-    def prepare_to_discard(self) -> bool:
-        ...
-class MoveTipSlider(Protocol):
-    def move_tip_slider(self) -> bool:
-        ...
-class PickupSuccess(Protocol):
-    def pickup_success(self) -> bool:
+class TipRM(Protocol):
+    def tip_available(self) -> str:
         ...
 
-class Tip_available:
-    def tip_available(self) -> bool:
-        return True
-class Tip_available_in_tray:
-    def tip_available_in_tray(self) -> bool:
-        return True
-class Discard_current_tray:
-    def discard_current_tray(self) -> bool:
-        return True
-class Tray_available:
-    def tray_available(self) -> bool:
-        return True
-class Slider_move_to_load:
-    def slider_move_to_load(self) -> bool:
-        return True
-class Load_next_tray:
-    def load_next_tray(self) -> bool:
-        return True
-class Prepare_to_discard:
-    def prepare_to_discard(self) -> bool:
-        return True
-class Move_tip_slider:
-    def move_tip_slider(self) -> bool:
-        return True
-class Pickup_success:
-    def pickup_success(self) -> bool:
-        return True
+    def tip_available_in_tray(self) -> str:
+        ...
 
-class TipRM:
-    def tip_available(self, obj: TipAvailable) -> bool:
-        return obj.tip_available()
+    def discard_current_tray(self) -> str:
+        ...
 
-    def tip_available_in_tray(self, obj: TipAvailableInTray) -> bool:
-        return obj.tip_available_in_tray()
+    def tray_available(self) -> str:
+        ...
 
-    def discard_current_tray(self, obj: DiscardCurrentTray) -> bool:
-        return obj.discard_current_tray()
+    def slider_move_to_load(self) -> str:
+        ...
 
-    def tray_available(self, obj: TrayAvailable) -> bool:
-        return obj.tray_available()
-
-    def slider_move_to_load(self, obj: SliderMoveToLoad) -> bool:
-        return obj.slider_move_to_load()
-
-    def load_next_tray(self, obj: LoadNextTray) -> bool:
-        return obj.load_next_tray()
+    def load_next_tray(self) -> str:
+        ...
     
-    def prepare_to_discard(self, obj: PrepareToDiscard) -> bool:
-        return obj.prepare_to_discard()
+    def prepare_to_discard(self) -> str:
+        ...
 
-    def move_tip_slider(self, obj: MoveTipSlider) -> bool:
-        return obj.move_tip_slider()
+    def move_tip_slider(self) -> str:
+        ...
     
-    def pickup_success(self, obj: PickupSuccess) -> bool:
-        return obj.pickup_success()
+    def pickup_success(self) -> str:
+        ...
+
+class Tip_rm:
+    def tip_available(self) -> str:
+        return "Tip Available"
+
+    def tip_available_in_tray(self) -> str:
+        return "Tip Available in Tray"
+
+    def discard_current_tray(self) -> str:
+        return "Discard Current Tray"
+
+    def tray_available(self) -> str:
+        return "Tray Available"
+
+    def slider_move_to_load(self) -> str:
+        return "Slider Move to Load"
+
+    def load_next_tray(self) -> str:
+        return "Load Next Tray"
+    
+    def prepare_to_discard(self) -> str:
+        return "Prepare to Discard"
+
+    def move_tip_slider(self) -> str:
+        return "Move Tip Slider"
+    
+    def pickup_success(self) -> str:
+        return "Pickup Success"
+
+class Queryable:
+    def __init__(self, Tip_rm: TipRM) -> None:
+        self.Tip_rm = Tip_rm
+        
+    def check_status(self, node: TipRM, event: str) -> bool:
+        return node.__getattribute__(event)()
+
+    def trigger_queryable_handler(self, query: zenoh.Query) -> None:
+        logging.debug("Received query: {}".format(query.selector))
+        event = query.selector.decode_parameters()
+        result = self.check_status(self.Tip_rm, event)
+        payload = {"response_type":"accepted", "response":result}
+        query.reply(zenoh.Sample("TipRM/trigger", payload))
+
+class Session:
+    def __init__(self, handler: Queryable) -> None:
+        self.handler = handler
+    def open(self):
+        self.config = zenoh.Config()
+        self.session = zenoh.open(self.config)
+        self.trigger_queryable = self.session.declare_queryable("TipRM/trigger", self.handler.trigger_queryable_handler)
+    def close(self):
+        self.session.close()
+        self.trigger_queryable.undeclare()    
+    
+@contextmanager
+def session_manager(handler: Queryable) -> Iterator[Session]:
+    try:
+        session = Session(handler)
+        session.open()
+        yield session
+    except KeyboardInterrupt:
+        logging.error("Interrupted by user")
+    finally:
+        session.close()
 
 if __name__ == "__main__":
-    tip_rm = TipRM()
-    check = input("Enter Query: ")
-    match check:
-        case "tip_available":
-            logging.debug(tip_rm.tip_available(Tip_available()))
-        case "tip_available_in_tray":
-            logging.debug(tip_rm.tip_available_in_tray(Tip_available_in_tray()))
-        case "discard_current_tray":
-            logging.debug(tip_rm.discard_current_tray(Discard_current_tray()))
-        case "tray_available":
-            logging.debug(tip_rm.tray_available(Tray_available()))
-        case "slider_move_to_load":
-            logging.debug(tip_rm.slider_move_to_load(Slider_move_to_load()))
-        case "load_next_tray":
-            logging.debug(tip_rm.load_next_tray(Load_next_tray()))
-        case "prepare_to_discard":
-            logging.debug(tip_rm.prepare_to_discard(Prepare_to_discard()))
-        case "move_tip_slider":
-            logging.debug(tip_rm.move_tip_slider(Move_tip_slider()))
-        case "pickup_success":
-            logging.debug(tip_rm.pickup_success(Pickup_success()))
-            
+    tip_rm = Tip_rm()
+    handler = Queryable(tip_rm)
+    with session_manager(handler) as session:
+        logging.debug("Tip Checker Started...")
+        while True:
+            time.sleep(1)

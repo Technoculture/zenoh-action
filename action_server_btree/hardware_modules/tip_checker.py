@@ -19,14 +19,16 @@ class Tip_checker:
         return "Discard tip success"
 
 class Queryable:
+    def __init__(self, tip_checker: TipChecker) -> None:
+        self.tip_checker = tip_checker
+        
     def check_status(self, node: TipChecker, event: str) -> bool:
         return node.__getattribute__(event)()
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
         event = query.selector.decode_parameters()
-        tip_checker = Tip_checker()
-        result = self.check_status(tip_checker, event)
+        result = self.check_status(self.tip_checker, event)
         payload = {"response_type":"accepted", "response":result}
         query.reply(zenoh.Sample("TipChecker/trigger", payload))
 
@@ -53,7 +55,8 @@ def session_manager(handler: Queryable) -> Iterator[Session]:
         session.close()
 
 if __name__ == "__main__":
-    handler = Queryable()
+    tip_checker = Tip_checker()
+    handler = Queryable(tip_checker)
     with session_manager(handler) as session:
         logging.debug("Tip Checker Started...")
         while True:

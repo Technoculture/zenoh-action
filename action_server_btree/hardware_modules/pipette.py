@@ -1,64 +1,74 @@
-from typing import Protocol
-from exceptions import exceptions
+from typing import Protocol, Iterator
 import logging
+import zenoh
+from contextlib import contextmanager
+import time
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-class DiscardSuccess(Protocol):
-    def discard_success(self) -> bool:
+class Pipette(Protocol):
+    def discard_success(self) -> str:
+        ...
+    def load_success(self) -> str:
+        ...
+    def eject_tip(self) -> str:
+        ...
+    def discard_tip_success(self) -> str:
         ...
 
-class LoadSuccess(Protocol):
-    def load_success(self) -> bool:
-        ...
+class Pipette_:
+    def discard_success(self) -> str:
+        return "Discard Success"
 
-class EjectTip(Protocol):
-    def eject_tip(self) -> bool:
-        ...
-    
-class DiscardTipSuccess(Protocol):
-    def discard_tip_success(self) -> None:
-        ...
+    def load_success(self) -> str:
+        return "Load Success"
 
-class Discard_success:
-    def discard_success(self) -> bool:
-        return True
+    def eject_tip(self) -> str:
+        return "Eject Tip"
 
-class Load_success:
-    def load_success(self) -> bool:
-        return True
+    def discard_tip_success(self) -> str:
+        return "Discard Tip Success"
 
-class Eject_tip:
-    def eject_tip(self) -> bool:
-        return True
-
-class Discard_tip_success:
-    def discard_tip_success(self) -> None:
-        raise exceptions.RetryException()
+class Queryable:
+    def __init__(self, pipette: Pipette) -> None:
+        self.pipette = pipette
         
+    def check_status(self, node: Pipette, event: str) -> bool:
+        return node.__getattribute__(event)()
 
-class Pipette:
-    def discard_success(self, obj: DiscardSuccess) -> object:
-        return obj.discard_success()
+    def trigger_queryable_handler(self, query: zenoh.Query) -> None:
+        logging.debug("Received query: {}".format(query.selector))
+        event = query.selector.decode_parameters()
+        result = self.check_status(self.pipette, event)
+        payload = {"response_type":"accepted", "response":result}
+        query.reply(zenoh.Sample("Pipette/trigger", payload))
 
-    def load_success(self, obj: LoadSuccess) -> object:
-        return obj.load_success()
-
-    def eject_tip(self, obj: EjectTip) -> object:
-        return obj.eject_tip()
-
-    def discard_tip_success(self, obj: DiscardTipSuccess) -> None:
-        return obj.discard_tip_success()
+class Session:
+    def __init__(self, handler: Queryable) -> None:
+        self.handler = handler
+    def open(self):
+        self.config = zenoh.Config()
+        self.session = zenoh.open(self.config)
+        self.trigger_queryable = self.session.declare_queryable("Pipette/trigger", self.handler.trigger_queryable_handler)
+    def close(self):
+        self.session.close()
+        self.trigger_queryable.undeclare()    
+    
+@contextmanager
+def session_manager(handler: Queryable) -> Iterator[Session]:
+    try:
+        session = Session(handler)
+        session.open()
+        yield session
+    except KeyboardInterrupt:
+        logging.error("Interrupted by user")
+    finally:
+        session.close()
 
 if __name__ == "__main__":
-    pipette = Pipette()
-    check = input("Enter Query: ")
-    match check:
-        case "discard_success":
-            logging.debug(pipette.discard_success(Discard_success()))
-        case "load_success":
-            logging.debug(pipette.load_success(Load_success()))
-        case "eject_tip":
-            logging.debug(pipette.eject_tip(Eject_tip()))
-        case "discard_tip_success":
-            pipette.discard_tip_success(Discard_tip_success())
+    pipette = Pipette_()
+    handler = Queryable(pipette)
+    with session_manager(handler) as session:
+        logging.debug("Tip Checker Started...")
+        while True:
+            time.sleep(1)
