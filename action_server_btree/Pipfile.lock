@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ca0f8e21747e9d47367e86fb750df9648a9bf2e84eb1e5247dd2bef0989e452d"
+            "sha256": "09426b5548da4c6a640fd6d65053834193915a0d0c5bd3c4bfb470f7e13d8787"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,21 @@
         ]
     },
     "default": {
+        "eclipse-zenoh": {
+            "hashes": [
+                "sha256:01708f2faff056ca888ac196e1c96431c55544bf375109044b7b7f69661675a3",
+                "sha256:1f08fa4f80d2b4937ef0aafdacec364a7be579d8d3994799737650a0b8499d8f",
+                "sha256:402b60b7e1ff7da91f733c179d664aa4ede894406ae93caaf11c19a210dbe12f",
+                "sha256:5adf699e123d150fac81475597bd8f59dabecac5bf70f046a147052641b62847",
+                "sha256:8276460736df17952469e69d67c65b520c747fc365b36a7af6192771faf10ee2",
+                "sha256:8fa9c47adc854ea4a72f61db4ef980c7eca561eaee466915fc64d216114d123b",
+                "sha256:93f079bafb40ed8c8ecd8a568fe766b3728cb77cb09dc9252cb689c5d27d83b0",
+                "sha256:c24c4127ac4f46337b2ec4da7ed23399c581e645ecce982920292ca9ee4104c7",
+                "sha256:f8b3233b84156da9b88546ae18d8174d244682946f9e05792fc942b8c5dbbab1"
+            ],
+            "index": "pypi",
+            "version": "==0.7.0rc0"
+        },
         "py-trees": {
             "hashes": [
                 "sha256:0c667e15d45157d92b0cd23f0cf8f8ca6a41bd9d2f3a159599cbf88287d98566",
