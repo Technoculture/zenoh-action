@@ -1,39 +1,60 @@
-from typing import Protocol
-from exceptions import exceptions
+from typing import Protocol, Iterator
 import logging
+import zenoh
+from contextlib import contextmanager
+import time
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-class CaughtTipFirmAndOrient(Protocol):
-    def caught_tip_firm_and_orient(self) -> bool:
+class TipChecker(Protocol):
+    def caught_tip_firm_and_orient(self) -> str:
         ... 
-
-class DiscardTipSuccess(Protocol):
-    def discard_tip_success(self) -> bool:
+    def discard_tip_success(self) -> str:
         ...
 
-class Caught_tip_firm_and_orient:
-    def caught_tip_firm_and_orient(self) -> bool:
-        return True
+class Tip_checker:
+    def caught_tip_firm_and_orient(self) -> str:
+        return "Caught tip firm and orient"
+    def discard_tip_success(self) -> str:
+        return "Discard tip success"
 
-class Discard_tip_success:
-    def discard_tip_success(self) -> bool:
-        return True
+class Queryable:
+    def check_status(self, node: TipChecker, event: str) -> bool:
+        return node.__getattribute__(event)()
 
-class TipChecker:
-    def caught_tip_firm_and_orient(self, obj: CaughtTipFirmAndOrient) -> bool:
-        return obj.caught_tip_firm_and_orient()
+    def trigger_queryable_handler(self, query: zenoh.Query) -> None:
+        logging.debug("Received query: {}".format(query.selector))
+        event = query.selector.decode_parameters()
+        tip_checker = Tip_checker()
+        result = self.check_status(tip_checker, event)
+        payload = {"response_type":"accepted", "response":result}
+        query.reply(zenoh.Sample("TipChecker/trigger", payload))
+
+class Session:
+    def __init__(self, handler: Queryable) -> None:
+        self.handler = handler
+    def open(self):
+        self.config = zenoh.Config()
+        self.session = zenoh.open(self.config)
+        self.trigger_queryable = self.session.declare_queryable("TipChecker/trigger", self.handler.trigger_queryable_handler)
+    def close(self):
+        self.session.close()
+        self.trigger_queryable.undeclare()    
     
-    def discard_tip_success(self, obj: DiscardTipSuccess) -> bool:
-        return obj.discard_tip_success()
-
-        print("caught_tip_firm_and_orient success")
+@contextmanager
+def session_manager(handler: Queryable) -> Iterator[Session]:
+    try:
+        session = Session(handler)
+        session.open()
+        yield session
+    except KeyboardInterrupt:
+        logging.error("Interrupted by user")
+    finally:
+        session.close()
 
 if __name__ == "__main__":
-    tip_checker = TipChecker()
-    check = input("Enter Query: ")
-    match check:
-        case "caught_tip_firm_and_orient":
-            logging.debug(tip_checker.caught_tip_firm_and_orient(Caught_tip_firm_and_orient()))
-        case "discard_tip_success":
-            logging.debug(tip_checker.discard_tip_success(Discard_tip_success()))
+    handler = Queryable()
+    with session_manager(handler) as session:
+        logging.debug("Tip Checker Started...")
+        while True:
+            time.sleep(1)
