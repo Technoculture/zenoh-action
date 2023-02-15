@@ -22,14 +22,19 @@ class Queryable:
     def __init__(self, tip_checker: TipChecker) -> None:
         self.tip_checker = tip_checker
         
-    def check_status(self, node: TipChecker, event: str) -> bool:
+    def check_status(self, node: TipChecker, event: str) -> str:
         return node.__getattribute__(event)()
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
         event = query.selector.decode_parameters()
-        result = self.check_status(self.tip_checker, event)
-        payload = {"response_type":"accepted", "response":result}
+        if event == {}:
+            payload = {"response_type":"Rejected", "response":"No Arguments given."}
+        elif event.get("event") == None or event.get("timestamp") == "":
+            payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
+        else:
+            result = self.check_status(self.tip_checker, event['event'])
+            payload = {"response_type":"accepted","response":result}
         query.reply(zenoh.Sample("TipChecker/trigger", payload))
 
 class Session:
@@ -39,6 +44,7 @@ class Session:
         self.config = zenoh.Config()
         self.session = zenoh.open(self.config)
         self.trigger_queryable = self.session.declare_queryable("TipChecker/trigger", self.handler.trigger_queryable_handler)
+        
     def close(self):
         self.session.close()
         self.trigger_queryable.undeclare()    

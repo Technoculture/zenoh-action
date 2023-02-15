@@ -33,14 +33,19 @@ class Queryable:
     def __init__(self, pipette: Pipette) -> None:
         self.pipette = pipette
         
-    def check_status(self, node: Pipette, event: str) -> bool:
+    def check_status(self, node: Pipette, event: str) -> str:
         return node.__getattribute__(event)()
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
         event = query.selector.decode_parameters()
-        result = self.check_status(self.pipette, event)
-        payload = {"response_type":"accepted", "response":result}
+        if event == {}:
+            payload = {"response_type":"Rejected", "response":"No Arguments given."}
+        elif event.get("event") == None or event.get("timestamp") == "":
+            payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
+        else:
+            result = self.check_status(self.pipette, event['event'])
+            payload = {"response_type":"accepted","response":result}
         query.reply(zenoh.Sample("Pipette/trigger", payload))
 
 class Session:
@@ -69,6 +74,6 @@ if __name__ == "__main__":
     pipette = Pipette_()
     handler = Queryable(pipette)
     with session_manager(handler) as session:
-        logging.debug("Tip Checker Started...")
+        logging.debug("Pipette Started...")
         while True:
             time.sleep(1)

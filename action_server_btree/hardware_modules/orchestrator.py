@@ -4,6 +4,8 @@ import zenoh
 from contextlib import contextmanager
 import time
 
+logging.getLogger().setLevel(logging.DEBUG)
+
 class Orchestrator(Protocol):
     def pick_up(self) -> str:
         ...
@@ -28,14 +30,19 @@ class Queryable:
     def __init__(self, orchestrator: Orchestrator) -> None:
         self.orchestrator = orchestrator
         
-    def check_status(self, node: Orchestrator, event: str) -> bool:
+    def check_status(self, node: Orchestrator, event: str) -> str:
         return node.__getattribute__(event)()
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
         event = query.selector.decode_parameters()
-        result = self.check_status(self.orchestrator, event)
-        payload = {"response_type":"accepted", "response":result}
+        if event == {}:
+            payload = {"response_type":"Rejected", "response":"No Arguments given."}
+        elif event.get("event") == None or event.get("timestamp") == "":
+            payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
+        else:
+            result = self.check_status(self.orchestrator, event['event'])
+            payload = {"response_type":"accepted","response":result}
         query.reply(zenoh.Sample("Orchestrator/trigger", payload))
 
 class Session:
@@ -64,6 +71,6 @@ if __name__ == "__main__":
     orchestrator = Orchestrator_()
     handler = Queryable(orchestrator)
     with session_manager(handler) as session:
-        logging.debug("Tip Checker Started...")
+        logging.debug("Orchestrator Started...")
         while True:
             time.sleep(1)
