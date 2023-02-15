@@ -38,6 +38,7 @@ class QueryableCallback:
             logging.debug(">> [Queryable ] Received Query '{}'".format(query.selector))
             jsonstatechart = self.statechart()
             event = query.selector.decode_parameters()
+            logging.debug("{}".format(event))
             events = Event(jsonStateMachine=jsonstatechart, **event)
             trigger = Trigger(events.event, self.statemachine)
             trigger()
@@ -45,6 +46,7 @@ class QueryableCallback:
                        'message': 'Trigger is Valid and it is triggered.'}
             query.reply(Sample(self.settings.base_key_expr+"/trigger", payload))
         except (ValidationError, ValueError, MachineError, AttributeError) as error:
+            logging.error(error)
             payload = {"response_code": "rejected",
                        "message": "{}".format(error)}
             query.reply(Sample(self.settings.base_key_expr+"/trigger", payload))

@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, List
 from transitions import MachineError
+import logging
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 def extract_states_from_jsonStateMachine(jsonStateMachine: dict) -> List:
     '''
@@ -17,13 +20,13 @@ def extract_states_from_jsonStateMachine(jsonStateMachine: dict) -> List:
     for transition in jsonStateMachine['transitions']:
         if transition['trigger'] not in trigger:
             trigger.append(transition['trigger'])
-    
-    for state in jsonStateMachine['states']:
-        if state.children:
-            for child in state.transitions:
-                if child.trigger not in trigger and child.trigger[0] != 'i':
-                    trigger.append(child)
 
+    for state in jsonStateMachine['states']:
+        if state.get('children')!=None:
+            for child in state["transitions"]:
+                if child["trigger"] not in trigger and child["trigger"][0] != 'i':
+                    trigger.append(child["trigger"])
+    logging.debug("{}".format(trigger))
     return trigger
 
 @dataclass
