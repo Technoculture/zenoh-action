@@ -1,8 +1,9 @@
 from typing import Protocol, Iterator
-import zenoh
 import logging
 from contextlib import contextmanager
 import time
+import zenoh
+from GetTip import Get_Tip
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -11,29 +12,49 @@ class GetTip(Protocol):
         ...
     def pick_up_using_orchestraror(self) -> str:
         ...
+    def tip_available(self) -> str:
+        ...
+    def pick_up_success(self) -> str:
+        ...
+    def tip_available_in_tray(self) -> str:
+        ...
+    def move_tip_slider_to_pos(self) -> str:
+        ...
+    def pick_up(self) -> str:
+        ...
+    def caught_tip_firm_and_orient(self) -> str:
+        ...
+    def discard_current_tray(self) -> str:
+        ...
     def load_new_tray(self) -> str:
+        ...
+    def load_success(self) -> str:
+        ...
+    def already_in_pos(self) -> str:
+        ...
+    def move_tip_slider(self) -> str:
+        ...
+    def slider_reached(self) -> str:
         ...
     def discard_tip(self) -> str:
         ...
+    def tray_avaialble(self) -> str:
+        ...
+    def slider_move_to_load(self) -> str:
+        ...
+    def load_next_tray(self) -> str:
+        ...
+    def goto_discard_position(self) -> str:
+        ...
+    def prepare_to_discard(self) -> str:
+        ...
+    def eject_tip(self) -> str:
+        ...
+    def discard_tip_success(self) -> str:
+        ...
     def retry_count_below_threshold(self) -> str:
         ...
-
-class Get_Tip:
-    def prepare_tip_for_pickup(self) -> str:
-        return "Prepare Tip for Pickup"
-
-    def pick_up_using_orchestraror(self) -> str:
-        return "Pick Up Using Orchestrator"
-
-    def load_new_tray(self) -> str:
-        return "Load New Tray"
-
-    def discard_tip(self) -> str:
-        return "Discard Tip"
-
-    def retry_count_below_threshold(self) -> str:
-        return "Retry Count Below Threshold"
-
+    
 class Queryable:
     def __init__(self, GetTip: GetTip) -> None:
         self.GetTip = GetTip
@@ -76,7 +97,7 @@ def session_manager(handler: Queryable) -> Iterator[Session]:
         session.close()
 
 if __name__ == "__main__":
-    get_tip = Get_Tip()
+    get_tip: GetTip = Get_Tip()
     handler = Queryable(get_tip)
     with session_manager(handler) as session:
         logging.debug("Get Tip Started...")
