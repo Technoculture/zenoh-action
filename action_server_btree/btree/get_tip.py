@@ -2,21 +2,21 @@ from typing import Protocol, Iterator
 import logging
 from contextlib import contextmanager
 import time
-import zenoh
+import zenoh #type: ignore
 from GetTip import Get_Tip
 
 logging.getLogger().setLevel(logging.DEBUG)
 
 class GetTip(Protocol):
-    def prepare_tip_for_pickup(self) -> str:
+    def prepare_tip_for_pickup(self, timestamp) -> str:
         ...
-    def pick_up_using_orchestraror(self) -> str:
+    def pick_up_using_orchestraror(self, timestamp) -> str:
         ...
-    def tip_available(self) -> str:
+    def tip_available(self, timestamp) -> str:
         ...
-    def pick_up_success(self) -> str:
+    def pick_up_success(self, timestamp) -> str:
         ...
-    def tip_available_in_tray(self) -> str:
+    def tip_available_in_tray(self, timestamp) -> str:
         ...
     def move_tip_slider_to_pos(self) -> str:
         ...
@@ -59,8 +59,8 @@ class Queryable:
     def __init__(self, GetTip: GetTip) -> None:
         self.GetTip = GetTip
 
-    def check_status(self, node: GetTip, event: str) -> str:
-        return node.__getattribute__(event)()
+    def check_status(self, node: GetTip, event: str, timestamp) -> str:
+        return node.__getattribute__(event)(timestamp)
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
@@ -70,7 +70,7 @@ class Queryable:
         elif event.get("event") == None or event.get("timestamp") == "":
             payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
         else:
-            result = self.check_status(self.GetTip, event['event'])
+            result = self.check_status(self.GetTip, event['event'], timestamp=event['timestamp'])
             payload = {"response_type":"accepted","response":result}
         query.reply(zenoh.Sample("GetTip/trigger", payload))
 
