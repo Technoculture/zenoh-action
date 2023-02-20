@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import time
 import zenoh #type: ignore
 from GetTip import Get_Tip
+from setTree import SetTree #type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -56,8 +57,8 @@ class GetTip(Protocol):
         ...
     
 class Queryable:
-    def __init__(self, GetTip: GetTip) -> None:
-        self.GetTip = GetTip
+    def __init__(self, tree = SetTree()) -> None:
+        self.tree = tree
 
     def check_status(self, node: GetTip, event: str, timestamp) -> str:
         return node.__getattribute__(event)(timestamp)
@@ -70,7 +71,7 @@ class Queryable:
         elif event.get("event") == None or event.get("timestamp") == "":
             payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
         else:
-            result = self.check_status(self.GetTip, event['event'], timestamp=event['timestamp'])
+            result = self.tree(event.get("event"))
             payload = {"response_type":"accepted","response":result}
         query.reply(zenoh.Sample("GetTip/trigger", payload))
 
