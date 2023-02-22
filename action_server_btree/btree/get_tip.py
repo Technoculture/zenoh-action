@@ -24,6 +24,9 @@ class Queryable:
             if type(self.tree._root.parent) == str or type(self.tree._root.children) == str:
                 if event.get("event") not in self.tree._root.children or event.get("event") != self.tree._root.parent:
                     payload = {"response_type":"Rejected", "response":"Not Valid trigger."}
+                elif event.get("event") == self.tree._root.parent or event.get("event") in self.tree._root.children: 
+                    payload = {"response_type":"Accepted", "response":"Valid trigger."}
+                    logging.debug("Children: {}".format(self.tree._root.children))
             else:
                 result = self.tree.SetupTree().Evaluate(event.get("event"), event.get("timestamp"))
                 payload = {"response_type":"accepted","response":result}
