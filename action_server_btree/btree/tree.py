@@ -6,7 +6,9 @@ import zenoh #type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-count = -1
+count = 0
+stack: list = []
+visited: dict = {}
 
 def get_status(key_expression: str):
     session = zenoh.open(zenoh.Config())
@@ -52,12 +54,23 @@ class Monobehaviour():
     def update(self) -> None:
         global count
         if self._root != None:
-            count -= 1
             if type(self._root) != str:
-                self._root = self._root.children[count]
-            count = 0
-            if type(self._root) == str or self._root.children == None:
                 count += 1
+                self._root = self._root.children[count]
+                visited[self._root] = True
+                if type(self._root) != str:
+                    for node in self._root.children:
+                        stack.append(node)
+                count = -1
+            if type(self._root) == str or self._root.children == None:
+                value = stack.pop()
+                if value not in visited.keys():
+                    self._root = value
+                    if type(self._root) != str:
+                        for node in self._root.children:
+                            visited[node] = True
+                            stack.append(node)
+                print(stack)
 
 class Sequence(Node):
     def __init__(self, children = []):
