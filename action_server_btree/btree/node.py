@@ -1,60 +1,46 @@
-from typing import TypeVar, Generic, List
-from enum import Enum, auto
-
-BehaviorTree = TypeVar("BehaviorTree")
+from enum import Enum
 
 class NodeState(Enum):
-    SUCCESS = auto()
-    FAILURE = auto()
-    RUNNING = auto()
+    """The state of a node."""
+    RUNNING = 0
+    SUCCESS = 1
+    FAILURE = 2
 
-class Node(Generic[BehaviorTree]):
+class Node:
+    "A node in behaviour tree."
     state: NodeState
-    def __init__(self, child = [], parent = None):
-        self.parent: Node = parent
-        self.children: List[Node] = []
-        self.datacontext: dict[str, object] = {}
-        if child != []:
-            self.AddChild(child)
+    parent: object
+    children: list = []
+    _datacontext: dict[str, object] = {}
 
-    def AddChild(self, child) -> None:
-        for child_ in child:
-            self.AttachChild(child_)
+    def __init__(self, children = []):
+        Node.parent = None
+        for c in children:
+            self._Attach(c)
+
+    def _Attach(self, node):
+        Node.parent = self
+        Node.children.append(node)
     
-    def AttachChild(self, child) -> None:
-        self.children.append(child)
-        self.parent = child
-    
-    def Evaluate(self, node, timestamp) -> str:
+    def Evaluate(self) -> NodeState:
         ...
     
     def setData(self, key: str, value: object) -> None:
-        self.datacontext[key] = value
+        Node._datacontext[key] = value
 
-    def getData(self, key:str):
-        value: object = None
-        if (self.datacontext.get(key) != None):
-            value = self.datacontext.get(key)
+    def getData(self, key: str) -> object:
+        value = None
+        _value = Node._datacontext.get(key)
+        if _value != None:
+            value = _value
             return value
         
-        node = self.parent
+        node = Node.parent
         while node != None:
             value = node.getData(key)
             if value != None:
                 return value
             node = node.parent
         return None
-
-    def clearData(self, key: str) -> bool:
-        if self.datacontext.get(key) != None:
-            self.datacontext.pop(key)
-            return True
-        node = self.parent
-        while node != None:
-            cleared = node.clearData(key)
-            if cleared:
-                return True
-            node = node.parent
-        return False
-        
+    
 

@@ -3,7 +3,6 @@ import logging
 from contextlib import contextmanager
 import time
 import zenoh #type: ignore
-from GetTip import GetTipNode #type: ignore
 from setTree import SetTree #type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)

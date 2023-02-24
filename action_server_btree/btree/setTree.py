@@ -1,14 +1,53 @@
-from tree import Monobehaviour, Sequence, Selector #type: ignore
+from tree import Tree, Selector, Sequence
+from node import Node, NodeState
 
-class SetTree(Monobehaviour):
+class pickup(Node):
+    def __init__(self):
+        super().__init__()
+    
+    def Evaluate(self) -> NodeState:
+        print("pickup")
+        state = NodeState.RUNNING
+        return state
+
+class tip_availability(Node):
+    def __init__(self):
+        super().__init__()
+    
+    def Evaluate(self) -> NodeState:
+        print("tip_availability")
+        count = 1
+        if count == 0:
+            state = NodeState.SUCCESS
+        else:
+            state = NodeState.RUNNING
+        return state
+    
+class tip(Node):
+    def __init__(self):
+        super().__init__()
+    
+    def Evaluate(self) -> NodeState:
+        print("tip")
+        count = 1
+        if count == 0:
+            state = NodeState.SUCCESS
+        else:
+            state = NodeState.RUNNING
+        return state
+
+class SetTree(Tree):
     def SetupTree(self):
-        discard_tip_success = Selector(["retry_count_below_threshold"])
-        discard_tip = Sequence(["goto_discard_position", "prepare_to_discard", "eject_tip", discard_tip_success])
-        load_new_tray = Sequence(["slider_move_to_load", "load_next_tray, tray_avaialble"])
-        tip_available_in_tray = Sequence(["discard_current_tip", "discard_sucess", load_new_tray, "load_sucess"])
-        move_tip_slider_to_pos = Selector(["slider_reached", "move_tip_slider", "already_in_pos"])
-        caught_tip_firm_and_orient = Sequence([discard_tip])
-        prepare_tip_for_pickup = Sequence([move_tip_slider_to_pos, tip_available_in_tray])
-        pickup_using_orchestrator = Sequence([caught_tip_firm_and_orient, "pick_up"])
-        get_Tip = Sequence(["pickup_success", pickup_using_orchestrator, prepare_tip_for_pickup, "tip_available"])
-        return get_Tip
+        # Create the tree structure
+        root = Selector([pickup(), 
+                         Sequence([tip_availability(), tip()])])
+        return root
+
+if __name__ == "__main__":
+    tree = SetTree()
+    tree.Start()
+    root = tree.SetupTree()
+    value = root.Evaluate()
+    print(value)
+    _value = root.Evaluate()
+    print(_value)
