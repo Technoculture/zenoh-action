@@ -1,4 +1,5 @@
-from typing import Protocol, Iterator
+from typing import Iterator
+from node import NodeState
 import logging
 from contextlib import contextmanager
 import time
@@ -8,9 +9,8 @@ from setTree import SetTree #type: ignore
 logging.getLogger().setLevel(logging.DEBUG)
 
 class Queryable:
-    def __init__(self, tree = SetTree()) -> None:
+    def __init__(self, tree) -> None:
         self.tree = tree
-        self.tree.start()
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
@@ -20,17 +20,12 @@ class Queryable:
         elif event.get("event") == None or event.get("timestamp") == "":
             payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
         else:
-            if type(self.tree._root.parent) == str or type(self.tree._root.children) == str:
-                if event.get("event") not in self.tree._root.children or event.get("event") != self.tree._root.parent:
-                    payload = {"response_type":"Rejected", "response":"Not Valid trigger."}
-                elif event.get("event") == self.tree._root.parent or event.get("event") in self.tree._root.children: 
-                    payload = {"response_type":"Accepted", "response":"Valid trigger."}
-                    logging.debug("Children: {}".format(self.tree._root.children))
+            root = self.tree.SetupTree()
+            value = root.Evaluate()
+            if value == NodeState.SUCCESS:
+                payload = {"response_type":"Accepted", "response":"Get Tip Success."}
             else:
-                result = self.tree.SetupTree().Evaluate(event.get("event"), event.get("timestamp"))
-                payload = {"response_type":"accepted","response":result}
-                self.tree.update()
-                logging.debug("Children: {}".format(self.tree._root.children))
+                payload = {"response_type":"Rejected", "response":"Get Tip Failure."}
         query.reply(zenoh.Sample("GetTip/trigger", payload))
 
 class Session:
@@ -57,7 +52,8 @@ def session_manager(handler: Queryable) -> Iterator[Session]:
 
 if __name__ == "__main__":
     #get_tip = GetTipNode()
-    handler = Queryable()
+    tree = SetTree()
+    handler = Queryable(tree)
     with session_manager(handler) as session:
         logging.debug("Get Tip Started...")
         while True:
