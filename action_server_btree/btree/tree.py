@@ -13,8 +13,6 @@ class Tree:
     def SetupTree(self):
         ...
 
-stack = []
-
 class Sequence(Node):
     def __init__(self, children):
         super().__init__(children)
@@ -25,19 +23,18 @@ class Sequence(Node):
             match node.Evaluate():
                 case NodeState.FAILURE:
                     state = NodeState.FAILURE
-                    return "Rejected"
+                    return state
                 case NodeState.SUCCESS:
-                    return "Accepted"
+                    return NodeState.SUCCESS
                 case NodeState.RUNNING:
                     anychildisrunning = True
                     Node.parent=node
-                    return "Running"
+                    continue
                 case _ :
                     state = NodeState.SUCCESS
-                    return "Accepted"
-        state = "Running" if anychildisrunning else "Accepted"
+                    return state
+        state = NodeState.RUNNING if anychildisrunning else NodeState.SUCCESS
         return state
-    
 class Selector(Node):
     def __init__(self, children):
         super().__init__(children)
@@ -47,17 +44,15 @@ class Selector(Node):
         for node in Node.children:
             match node.Evaluate():
                 case NodeState.FAILURE:
-                    stack.append(node)
-                    return "Rejected"
+                    return NodeState.FAILURE
                 case NodeState.SUCCESS:
                     state = NodeState.SUCCESS
-                    return "Accepted"
+                    return NodeState.SUCCESS
                 case NodeState.RUNNING:
                     anychildisrunning = True
-                    Node.parent=node
-                    return "Running"
+                    continue
                 case _ :
                     state = NodeState.SUCCESS
-                    return "Accepted"
-        state = "Running" if anychildisrunning else "Rejected"
+                    return NodeState.SUCCESS
+        state = NodeState.RUNNING if anychildisrunning else NodeState.FAILURE
         return state
