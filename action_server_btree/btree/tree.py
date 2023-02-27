@@ -1,9 +1,11 @@
 from node import Node, NodeState
 from itertools import islice
-from node_class import non_leaf_node, leaf_node
+from node_class import non_leaf_node, leaf_node #type: ignore
 
+"""Global Variables"""
 non_leaf_dict = ["pickup", "hello"]
 leaf_dict = ["tip_availability","tip"]
+retry_count: int = 0
 
 class Tree:
     _root: Node = None #type: ignore
@@ -26,7 +28,9 @@ class Sequence(Node):
     def Evaluate(self, _node, _timestamp) -> NodeState:
         anychildisrunning = False
         for node in islice(Node.children, None, Node.children.index(_node)+1):
+            """Runs the loop for all the nodes from starting till the given event/node."""
             if node in leaf_dict:
+                """Checks if the given node is leaf node. If yes, then it triggers the evaluate function of leaf node and returns the state of the leaf node."""
                 match leaf_node().Evaluate(_node, _timestamp):
                     case NodeState.FAILURE:
                         state = NodeState.FAILURE
@@ -36,6 +40,7 @@ class Sequence(Node):
                         continue
                     
             elif node in non_leaf_dict:
+                """Checks if the given node is non-leaf node. If yes, then it triggers the ecaluate function of non-leaf node and returns the state of the non-leaf node."""
                 match non_leaf_node().Evaluate(_node, _timestamp):
                     case NodeState.FAILURE:
                         state = NodeState.FAILURE
@@ -58,7 +63,9 @@ class Selector(Node):
         anychildisrunning = False
 
         for node in islice(Node.children, None, Node.children.index(_node)+1):
+            """Runs the loop for all the nodes from starting till the given event/node."""
             if node in non_leaf_dict:
+                """Checks if the given node is non-leaf node. If yes, then it triggers the evaluate function of non-leaf node and returns the state of the non-leaf node."""
                 match non_leaf_node().Evaluate(node = _node, timestamp=_timestamp):
                     case NodeState.FAILURE:
                         state = NodeState.FAILURE
@@ -71,6 +78,7 @@ class Selector(Node):
                         continue
                     
             elif node in leaf_dict:
+                """Checks if the given node is leaf node. If yes, then it triggers the evaluate function of leaf node and returns the state of the leaf node."""
                 match leaf_node().Evaluate(node = _node, timestamp=_timestamp):
                     case NodeState.FAILURE:
                         state = NodeState.FAILURE
