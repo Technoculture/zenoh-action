@@ -5,6 +5,8 @@ class NodeState(Enum):
     RUNNING = 0
     SUCCESS = 1
     FAILURE = 2
+    EXCEPTION =3
+    ERROR = 4
 
 class Node:
     "A node in behaviour tree."
@@ -22,7 +24,7 @@ class Node:
         Node.parent = self
         Node.children.append(node)
     
-    def Evaluate(self) -> NodeState:
+    def Evaluate(self, _node, _timestamp) -> NodeState:
         ...
     
     def setData(self, key: str, value: object) -> None:
@@ -43,4 +45,5 @@ class Node:
             node = node.parent
         return None
     
-
+    def clearData(self) -> None:
+        Node._datacontext.clear()
