@@ -3,7 +3,6 @@ from node import Node, NodeState
 
 """Global Variables"""
 leaf_dict: list = []
-retry_count: int = 0
 
 class non_leaf_node(Node):
     def __init__(self) -> None:
