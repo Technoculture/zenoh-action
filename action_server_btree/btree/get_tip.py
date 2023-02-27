@@ -21,8 +21,8 @@ class Queryable:
             payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
         else:
             root = self.tree.SetupTree()
-            value = root.Evaluate()
-            if value == NodeState.SUCCESS:
+            value = root.Evaluate(event.get("event"), event.get("timestamp"))
+            if value == NodeState.SUCCESS or value == NodeState.RUNNING:
                 payload = {"response_type":"Accepted", "response":"Get Tip Success."}
             else:
                 payload = {"response_type":"Rejected", "response":"Get Tip Failure."}
