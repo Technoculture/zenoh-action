@@ -1,10 +1,10 @@
+from contextlib import contextmanager
+from setTree import SetTree #type: ignore
 from typing import Iterator
 from node import NodeState
 import logging
-from contextlib import contextmanager
 import time
 import zenoh #type: ignore
-from setTree import SetTree #type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -22,10 +22,11 @@ class Queryable:
         else:
             root = self.tree.SetupTree()
             value = root.Evaluate(event.get("event"), event.get("timestamp"))
+            _value = str(value)
             if value == NodeState.SUCCESS or value == NodeState.RUNNING:
-                payload = {"response_type":"Accepted", "response":"Get Tip Success."}
+                payload = {"response_type":"Accepted", "response":f"{_value}"}
             else:
-                payload = {"response_type":"Rejected", "response":"Get Tip Failure."}
+                payload = {"response_type":"Rejected", "response":f"{_value}"}
         query.reply(zenoh.Sample("GetTip/trigger", payload))
 
 class Session:
