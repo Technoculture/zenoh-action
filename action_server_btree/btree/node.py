@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Union
 
 class NodeState(Enum):
     """The state of a node."""
@@ -13,7 +14,7 @@ class Node:
     state: NodeState
     parent: object
     children: list = []
-    _datacontext: dict[str, object] = {}
+    _datacontext: dict[str, Union[object, int]] = {}
 
     def __init__(self, children = []):
         Node.parent = None
@@ -27,10 +28,10 @@ class Node:
     def Evaluate(self, _node, _timestamp) -> NodeState:
         ...
     
-    def setData(self, key: str, value: object) -> None:
+    def setData(self, key: str, value: Union[object, int]) -> None:
         Node._datacontext[key] = value
 
-    def getData(self, key: str) -> object:
+    def getData(self, key: str) -> Union[object, int]:
         value = None
         _value = Node._datacontext.get(key)
         if _value != None:
@@ -39,10 +40,10 @@ class Node:
         
         node = Node.parent
         while node != None:
-            value = node.getData(key)
+            value = node.getData(key) #type: ignore
             if value != None:
                 return value
-            node = node.parent
+            node = node.parent #type: ignore
         return None
     
     def clearData(self) -> None:
