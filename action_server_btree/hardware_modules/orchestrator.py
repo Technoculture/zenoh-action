@@ -1,8 +1,8 @@
 from typing import Protocol, Iterator
-import logging
-import zenoh
 from contextlib import contextmanager
+import logging
 import time
+import zenoh  # type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -13,18 +13,18 @@ class Orchestrator(Protocol):
         ...
     def go_to_discard_position(self) -> str:
         ...
-    def goto_discard_position(self) -> str:
+    def discard_tip_success(self) -> str:
         ...
 
 class Orchestrator_:
     def pick_up(self) -> str:
-        return "Pick Up"
+        return "Accepted"
     def caught_tip_firm_and_orient(self) -> str:
-        return "Caught Tip Firm and Orient"
+        return "Accepted"
     def go_to_discard_position(self) -> str:
-        return "Go to Discard Position"
-    def goto_discard_position(self) -> str:
-        return "Go to Discard Position"
+        return "Accepted"
+    def discard_tip_success(self) -> str:
+        return "Accepted"
 
 class Queryable:
     def __init__(self, orchestrator: Orchestrator) -> None:

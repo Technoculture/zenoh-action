@@ -1,8 +1,8 @@
 from typing import Protocol, Iterator
-import logging
-import zenoh
 from contextlib import contextmanager
+import logging
 import time
+import zenoh # type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -33,34 +33,52 @@ class TipRM(Protocol):
     
     def pickup_success(self) -> str:
         ...
+    
+    def move_tip_slider_to_pos(self) -> str:
+        ...
+    
+    def slider_reached(self) -> str:
+        ...
+    
+    def already_in_pos(self) -> str:
+        ...
 
 class Tip_rm:
     def tip_available(self) -> str:
-        return "Tip Available"
+        return "Accepted"
 
     def tip_available_in_tray(self) -> str:
-        return "Tip Available in Tray"
+        return "Accepted"
 
     def discard_current_tray(self) -> str:
-        return "Discard Current Tray"
+        return "Accepted"
 
     def tray_available(self) -> str:
-        return "Tray Available"
+        return "Accepted"
 
     def slider_move_to_load(self) -> str:
-        return "Slider Move to Load"
+        return "Accepted"
 
     def load_next_tray(self) -> str:
-        return "Load Next Tray"
+        return "Accepted"
     
     def prepare_to_discard(self) -> str:
-        return "Prepare to Discard"
+        return "Accepted"
 
-    def move_tip_slider(self) -> str:
-        return "Move Tip Slider"
+    def move_tip_slider_to_pos(self) -> str:
+        return "Accepted"
     
     def pickup_success(self) -> str:
-        return "Pickup Success"
+        return "Accepted"
+    
+    def move_tip_slider(self) -> str:
+        return "Accepted"
+    
+    def slider_reached(self) -> str:
+        return "Accepted"
+    
+    def already_in_pos(self) -> str:
+        return "Accepted"
 
 class Queryable:
     def __init__(self, Tip_rm: TipRM) -> None:

@@ -1,8 +1,8 @@
 from typing import Protocol, Iterator
-import logging
-import zenoh
 from contextlib import contextmanager
+import logging
 import time
+import zenoh # type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -14,9 +14,9 @@ class TipChecker(Protocol):
 
 class Tip_checker:
     def caught_tip_firm_and_orient(self) -> str:
-        return "Caught tip firm and orient"
+        return "Accepted"
     def discard_tip_success(self) -> str:
-        return "Discard tip success"
+        return "Accepted"
 
 class Queryable:
     def __init__(self, tip_checker: TipChecker) -> None:

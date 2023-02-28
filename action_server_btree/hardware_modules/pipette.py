@@ -1,8 +1,8 @@
 from typing import Protocol, Iterator
-import logging
-import zenoh
 from contextlib import contextmanager
+import logging
 import time
+import zenoh # type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -18,16 +18,16 @@ class Pipette(Protocol):
 
 class Pipette_:
     def discard_success(self) -> str:
-        return "Discard Success"
+        return "Accepted"
 
     def load_success(self) -> str:
-        return "Load Success"
+        return "Accepted"
 
     def eject_tip(self) -> str:
-        return "Eject Tip"
+        return "Accepted"
 
     def discard_tip_success(self) -> str:
-        return "Discard Tip Success"
+        return "Accepted"
 
 class Queryable:
     def __init__(self, pipette: Pipette) -> None:
