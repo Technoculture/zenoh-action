@@ -22,11 +22,11 @@ class Queryable:
         else:
             root = self.tree.SetupTree()
             value = root.Evaluate(event.get("event"), event.get("timestamp"))
-            _value = str(value)
+            logging.debug(str(value))
             if value == NodeState.SUCCESS or value == NodeState.RUNNING:
-                payload = {"response_type":"Accepted", "response":f"{_value}"}
+                payload = {"response_type":"Accepted", "response":"Get Tip Success."}
             else:
-                payload = {"response_type":"Rejected", "response":f"{_value}"}
+                payload = {"response_type":"Rejected", "response":"Get Tip Failure."}
         query.reply(zenoh.Sample("GetTip/trigger", payload))
 
 class Session:

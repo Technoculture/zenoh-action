@@ -2,6 +2,7 @@ from typing import Any, List
 from node import Node, NodeState
 from zenoh import QueryTarget # type: ignore
 import zenoh # type: ignore
+import json
 
 """Global Variables"""
 leaf_nodes: List[str] = ["pick_up", "discard_current_tray", "move_tip_slider", "slider_move_load", "load_next_tray", "goto_discard_pos", "prepare_to_discard", "eject_tip"]
@@ -10,13 +11,16 @@ def get_status(key_expression: str):
     session = zenoh.open(zenoh.Config())
     replies = session.get(key_expression, zenoh.Queue(), QueryTarget.ALL())
     for reply in replies:
-        return reply.ok.payload.decode("utf-8")
+        print(f"Received: {reply.ok.payload.decode('utf-8')}")
+        print(type(json.loads(reply.ok.payload.decode("utf-8"))))
+        return json.loads(reply.ok.payload.decode("utf-8"))
 
 def decide_hardware_module(node):
+    
     hardware_module = False
     tiprm = ["tip_available", "pickup_success", "tip_available_in_tray", "move_tip_slider_to_pos", "diacrd_current_tray", "move_tip_slider", "slider_reached", "tray_available", "slidr_move_to_load", "load_next_tray", "already_in_pos", "prepare_to_discard"]
     tipchecker = ["discard_tip_success", "caught_tip_firm_and_orient"]
-    orchestrator = ["pick_up", "caught_tip_firm_and_orient", "goto_diascard_pos", "discard_tip_success"]
+    orchestrator = ["pick_up", "caught_tip_firm_and_orient", "goto_discard_pos", "discard_tip_success"]
     pipette = ["load_success", "discard_success", "eject_tip", "discard_tip_success"]
     if node in tiprm:
         hardware_module = "TipRM"
@@ -26,6 +30,7 @@ def decide_hardware_module(node):
         hardware_module = "Orchestrator"
     elif node in pipette:
         hardware_module = "Pipette"
+    print(f"Hardware Module: {hardware_module}")
     return hardware_module
 
 class non_leaf_node(Node):
@@ -36,7 +41,7 @@ class non_leaf_node(Node):
         hardware_module = decide_hardware_module(node)
         if hardware_module != False:
             result = get_status(f"{hardware_module}/trigger?timestamp={timestamp}&event={node}")
-            if result == "Accepted":
+            if result["response_type"] == "Accepted":
                 if Node().getData(node) == "NodeState.RUNNING":
                     leaf_node_exists = Node.children[Node.children.index(node) + 1]
                     if leaf_node_exists in leaf_nodes:
@@ -52,7 +57,8 @@ class non_leaf_node(Node):
                     state = NodeState.FAILURE
             else:
                 state = NodeState.FAILURE
-            return state
+        print(f"non-leaf State: {state}")
+        return state
 
 class leaf_node(Node):
     def __init__(self) -> None:
@@ -62,14 +68,16 @@ class leaf_node(Node):
         hardware_module = decide_hardware_module(node)
         if hardware_module != False:
             result = get_status(f"{hardware_module}/trigger?timestamp={timestamp}&event={node}")
-            if result == "Accepted":
+            if result["response_type"] == "Accepted":
                 state = NodeState.SUCCESS
-            elif result == "Error":
+            elif result["response_type"] == "Error":
                 state = NodeState.ERROR
-            elif result == "Exception":
+            elif result["response_type"] == "Exception":
                 state = NodeState.EXCEPTION
             else:
                 state = NodeState.FAILURE
         else:
             state = NodeState.SUCCESS
+        print(Node()._datacontext)
+        print(f"leaf State: {state}")
         return state

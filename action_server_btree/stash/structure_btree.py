@@ -68,4 +68,4 @@ def get_tip():
 
 if __name__ == '__main__':
     root = get_tip()
-    py_trees.display.render_dot_tree(root, name="get_tip")
+    print(root.children)

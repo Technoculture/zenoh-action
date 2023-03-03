@@ -1,6 +1,6 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator #type: ignore
 from datetime import datetime
-from typing import Union, Optional
+from typing import Union
 
 class Event(BaseModel):
     '''

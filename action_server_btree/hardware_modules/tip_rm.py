@@ -96,7 +96,7 @@ class Queryable:
             payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
         else:
             result = self.check_status(self.Tip_rm, event['event'])
-            payload = {"response_type":"accepted","response":result}
+            payload = {"response_type":"Accepted","response":result}
         query.reply(zenoh.Sample("TipRM/trigger", payload))
 
 class Session:
