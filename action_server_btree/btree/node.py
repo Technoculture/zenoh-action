@@ -22,9 +22,14 @@ class Node:
             self._Attach(c)
 
     def _Attach(self, node):
-        Node.parent = self
-        Node.children.append(node)
+        if type(node) != str and node.parent == None:
+            Node.children.append(node)
+            Node.parent = self
     
+    def AddChild(self, children):
+        for child in children:
+            self._Attach(child)
+
     def Evaluate(self, _node, _timestamp) -> NodeState:
         ...
     
