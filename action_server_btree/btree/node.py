@@ -16,15 +16,17 @@ class Node:
     children: list = []
     _datacontext: dict[str, Union[object, int]] = {}
 
-    def __init__(self, children = []):
+    def __init__(self, name = "", children = []):
+        self.name = name
         Node.parent = None
         for c in children:
             self._Attach(c)
 
     def _Attach(self, node):
-        if type(node) != str and node.parent == None:
-            Node.children.append(node)
+        if node.parent == None:
+            Node.children.append(node.name)
             Node.parent = self
+            print(node.parent)
     
     def AddChild(self, children):
         for child in children:
