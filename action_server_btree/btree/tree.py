@@ -21,67 +21,10 @@ class Tree:
             Tree._root.Evaluate()
     
     def SetupTree(self):
-        ...
-
-class Sequence(Node):
-    def __init__(self, children):
-        super().__init__(children)
-
-    def Evaluate(self, _node, _timestamp) -> NodeState:
-        anychildisrunning = False
-        global current_node
-        print("Current Node: ", current_node)
-        print("sequence leaf node: {} ".format(_node))
-        for node in islice(Node.children, current_node, Node.children.index(_node)+1):
-            """Runs the loop for all the nodes from starting till the given event/node."""
-            if node in leaf_nodes and type(node) == str:
-                """Checks if the given node is leaf node. If yes, then it triggers the evaluate function of leaf node and returns the state of the leaf node."""
-                match leaf_node().Evaluate(_node, _timestamp):
-                    case NodeState.SUCCESS:
-                        state = NodeState.SUCCESS
-                        continue
-                    case NodeState.ERROR:
-                        state = NodeState.ERROR
-                        return state
-                    case NodeState.EXCEPTION:
-                        value = Node().getData("retry_count")
-                        if value < 3:
-                            Node().setData("retry_count",  value+1)
-                            state = NodeState.EXCEPTION
-                        else:
-                            state = NodeState.ERROR
-                        return state
-                    
-            elif node in non_leaf_nodes:
-                """Checks if the given node is non-leaf node. If yes, then it triggers the ecaluate function of non-leaf node and returns the state of the non-leaf node."""
-                match non_leaf_node().Evaluate(_node, _timestamp):
-                    case NodeState.SUCCESS:
-                        state = NodeState.SUCCESS
-                        return state
-                    case NodeState.RUNNING:
-                        anychildisrunning = True
-                        state = NodeState.SUCCESS
-                        return state
-                    case NodeState.ERROR:
-                        state = NodeState.ERROR
-                        return state
-                    case NodeState.EXCEPTION:
-                        state = NodeState.EXCEPTION
-                        value = Node().getData("retry_count")
-                        if value < 3:
-                            Node().setData("retry_count",  value+1)
-                            state = NodeState.EXCEPTION
-                        else:
-                            state = NodeState.ERROR             
-                        return state
-                    
-        state = NodeState.RUNNING if anychildisrunning else NodeState.SUCCESS
-        current_node = Node.children.index(_node)
-        return state
-    
+        ...    
 
 class Selector(Node):
-    def __init__(self, children):
+    def __init__(self, children) -> None:
         super().__init__(children)
 
     def Evaluate(self, _node, _timestamp) -> NodeState:
