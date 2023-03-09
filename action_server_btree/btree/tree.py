@@ -24,6 +24,12 @@ class Tree:
         ...    
 
 class Selector(Node):
+    """
+    Note:
+    Add the returned state to the datacontext dictionary.
+    remove loop from the evaluate function.
+    return state from the evaluate function.
+    """
     def __init__(self, children) -> None:
         super().__init__(children)
 
