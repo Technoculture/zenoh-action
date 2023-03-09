@@ -1,24 +1,26 @@
-from typing import Any, List
+from typing import Any, List, Dict
+from itertools import islice
 from node import Node, NodeState
 from zenoh import QueryTarget # type: ignore
 import zenoh # type: ignore
 import json
 
-"""Global Variables"""
-leaf_nodes: List[str] = ["pick_up", "discard_current_tray", "move_tip_slider", "slider_move_load", "load_next_tray", "goto_discard_pos", "prepare_to_discard", "eject_tip"]
-
-def get_status(key_expression: str):
+def get_status(key_expression: str) -> Dict[str, str]:
+    """
+    Get status of the node from hardware modules through zenoh.
+    """
     session = zenoh.open(zenoh.Config())
     replies = session.get(key_expression, zenoh.Queue(), QueryTarget.ALL())
     for reply in replies:
-        print(f"Received: {reply.ok.payload.decode('utf-8')}")
-        print(type(json.loads(reply.ok.payload.decode("utf-8"))))
         return json.loads(reply.ok.payload.decode("utf-8"))
+    return {}
 
 def decide_hardware_module(node):
-    
-    hardware_module = False
-    tiprm = ["tip_available", "pickup_success", "tip_available_in_tray", "move_tip_slider_to_pos", "diacrd_current_tray", "move_tip_slider", "slider_reached", "tray_available", "slidr_move_to_load", "load_next_tray", "already_in_pos", "prepare_to_discard"]
+    """
+    Decide the hardware module based on the node.
+    """
+    hardware_module = ""
+    tiprm = ["tip_available", "pickup_success", "tip_available_in_tray", "move_tip_slider_to_pos", "discard_current_tray", "move_tip_slider", "slider_reached", "tray_available", "slidr_move_to_load", "load_next_tray", "already_in_pos", "prepare_to_discard"]
     tipchecker = ["discard_tip_success", "caught_tip_firm_and_orient"]
     orchestrator = ["pick_up", "caught_tip_firm_and_orient", "goto_discard_pos", "discard_tip_success"]
     pipette = ["load_success", "discard_success", "eject_tip", "discard_tip_success"]
@@ -33,32 +35,23 @@ def decide_hardware_module(node):
     print(f"Hardware Module: {hardware_module}")
     return hardware_module
 
+def check_node_valid(node) -> bool:
+    node_list = islice(Node.children, 0, Node.children.index(node))
+    for _node in node_list:
+        if _node not in Node._datacontext.keys():
+            return False
+    return True
+
 class non_leaf_node(Node):
     def __init__(self) -> None:
         super().__init__()
 
-    def Evaluate(self, node: Any, timestamp: Any):
-        hardware_module = decide_hardware_module(node)
-        if hardware_module != False:
-            result = get_status(f"{hardware_module}/trigger?timestamp={timestamp}&event={node}")
-            if result["response_type"] == "Accepted":
-                if Node().getData(node) == "NodeState.RUNNING":
-                    leaf_node_exists = Node.children[Node.children.index(node) + 1]
-                    if leaf_node_exists in leaf_nodes:
-                        Node().setData(node, "NodeState.SUCCESS")
-                        state = NodeState.SUCCESS
-                        return state
-                    state = NodeState.RUNNING
-                elif Node().getData(node) == None:
-                    Node().setData(node, "NodeState.RUNNING")
-                    state = NodeState.RUNNING
-                else:
-                    Node().setData(node, "NodeState.FAILURE")
-                    state = NodeState.FAILURE
-            else:
-                state = NodeState.FAILURE
-        print(f"non-leaf State: {state}")
+    def Evaluate(self, node: Any, timestamp: Any) -> NodeState:
+        if check_node_valid(node=node):
+            if Node().getData(node) == "Running":
+                state = NodeState.RUNNING
         return state
+
 
 class leaf_node(Node):
     def __init__(self) -> None:
@@ -66,7 +59,7 @@ class leaf_node(Node):
 
     def Evaluate(self, node: Any, timestamp: Any) -> NodeState:
         hardware_module = decide_hardware_module(node)
-        if hardware_module != False:
+        if hardware_module is not None:
             result = get_status(f"{hardware_module}/trigger?timestamp={timestamp}&event={node}")
             if result["response_type"] == "Accepted":
                 state = NodeState.SUCCESS
