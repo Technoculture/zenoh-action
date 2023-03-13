@@ -26,6 +26,7 @@ def decide_hardware_module(node):
     tipchecker = ["discard_tip_success", "caught_tip_firm_and_orient"]
     orchestrator = ["pick_up", "caught_tip_firm_and_orient", "goto_discard_pos", "discard_tip_success"]
     pipette = ["load_success", "discard_success", "eject_tip", "discard_tip_success"]
+    
     if node in tiprm:
         hardware_module = "TipRM"
     elif node in tipchecker:

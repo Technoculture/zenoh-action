@@ -56,7 +56,7 @@ class Node:
             if value != None:
                 return value
             node = node.parent #type: ignore
-        return None
+        return 0
     
     def clearData(self) -> None:
         # Clear the data in the datacontext.

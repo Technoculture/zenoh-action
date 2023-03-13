@@ -1,4 +1,5 @@
 from tree import Tree, Selector
+from node import Node
 
 class SetTree(Tree):
     def SetupTree(self):
@@ -40,5 +41,7 @@ class SetTree(Tree):
 
 if __name__ == "__main__":
     tree = SetTree()
+    value = 0
     root = tree.SetupTree()
     print(root.children)
+    print(type(value))

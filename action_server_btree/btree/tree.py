@@ -8,7 +8,7 @@ from node_class import non_leaf_node, leaf_node
 non_leaf_nodes: List[str] = ["get_tip", "prepare_tip_for_pickup", "pick_up_using_orchestrator", "move_tip_slider_to_pos", "tip_available_in_tray", "caught_tip_firm_and_orient", "load_new_tray", "discard_tip", "discard_tip_success"]
 leaf_nodes: List[str] = ["tip_available", "pickup_success", "discard_success", "tray_available", "load_success", "slider_reached", "discard_tip_success", "retry_Count_below_threshold","pick_up", "discard_current_tray", "move_tip_slider", "slider_move_load", "load_next_tray", "goto_discard_pos", "prepare_to_discard", "eject_tip"]
 decision_nodes: List[str] = ["tip_available", "pickup_success", "discard_success", "tray_available", "load_success", "slider_reached", "discard_tip_success", "retry_Count_below_threshold"]
-current_node: int = 0
+value: int = 0
 
 class Tree:
     _root: Node = None #type: ignore
@@ -49,10 +49,18 @@ class Selector(Node):
                     state = NodeState.FAILURE
                 case NodeState.ERROR:
                     state = NodeState.ERROR
-                    Node().clearData()
+                    self.clearData()
                 case NodeState.EXCEPTION:
+                    global value
                     state = NodeState.EXCEPTION
-                    Node().clearData()
+                    value = self.getData("count") #type: ignore
+                    if value > 3:
+                        self.setData("count", value+1)
+                        state = NodeState.ERROR
+                        self.clearData()
+                    else:
+                        self.setData("count", value+1)
+                        state = NodeState.EXCEPTION
         return state
 
 class Success(Node):
