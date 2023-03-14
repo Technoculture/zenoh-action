@@ -1,5 +1,6 @@
 from typing import Protocol, Iterator
 from contextlib import contextmanager
+from triggervalidator import Event
 import logging
 import time
 import zenoh # type: ignore
@@ -38,11 +39,9 @@ class Queryable:
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
-        event = query.selector.decode_parameters()
-        if event == {}:
-            payload = {"response_type":"Rejected", "response":"No Arguments given."}
-        elif event.get("event") == None or event.get("timestamp") == "":
-            payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
+        event = Event(**query.selector.decode_parameters())
+        if event.timestamp == "Failure" or event.event == "Failure":
+            payload = {"response_type":"Rejected","response":"Timestamp or event is not Valid or the arguments are missing."}
         else:
             result = self.check_status(self.pipette, event['event'])
             payload = {"response_type":"accepted","response":result}

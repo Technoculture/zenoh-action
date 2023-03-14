@@ -1,6 +1,7 @@
 from contextlib import contextmanager
-from setTree import SetTree
 from typing import Iterator
+from triggervalidator import Event
+from setTree import SetTree
 from node import NodeState
 import logging
 import time
@@ -17,15 +18,14 @@ class Queryable:
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         """ Handle the query for the trigger queryable."""
+
         logging.debug("Received query: {}".format(query.selector))
-        event = query.selector.decode_parameters()
-        if event == {}:
-            payload = {"response_type":"Rejected", "response":"No Arguments given."}
-        elif event.get("event") == None or event.get("timestamp") == "":
-            payload = {"response_type":"Rejected", "response":"Agruments are not valid."}
+        event = Event(**query.selector.decode_parameters())
+        if event.timestamp == "Failure" or event.event == "Failure":
+            payload = {"response_type":"Rejected","response":"Timestamp or event is not Valid or the arguments are missing."}
         else:
             root = self.tree.SetupTree()
-            value = root.Evaluate(event.get("event"), event.get("timestamp"))
+            value = root.Evaluate(event.event, event.timestamp)
             if value == NodeState.SUCCESS:
                 payload = {"response_type":"Accepted", "response":"Get Tip Success."}
             else:
