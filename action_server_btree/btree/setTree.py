@@ -1,10 +1,9 @@
-from tree import Tree, Selector
+from tree import Tree, Selector, Exception
 from node import Node
 
 class SetTree(Tree):
     def SetupTree(self):
         # Define level nodes of tree
-        root = Selector(["get_tip"])
         level1 = Selector(["tip_available"])
         level2 = Selector(["prepare_tip_for_pickup"])
         level2_1 = Selector(["tip_available_in_tray"])
@@ -27,7 +26,7 @@ class SetTree(Tree):
         level3_2_1_2 = Selector(["prepare_to_discard"])
         level3_2_1_3 = Selector(["eject_tip"])
         level3_2_1_4 = Selector(["discard_tip_success"])
-        level3_2_1_4_1 = Selector(["retry_count_below_threshold"])
+        level3_2_1_4_1 = Exception(["retry_count_below_threshold"])
         level4 = Selector(["pickup_success"])
 
         # Setup parent-child relationships
