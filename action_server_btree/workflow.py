@@ -23,7 +23,6 @@ class Queryable:
         return {}
 
     def check_status(self, event) -> Dict[str, str]:
-        global keyexpression
         keyexpression = "{}/trigger?timestamp={}&event={}".format(event.workflow, event.timestamp, event.event)
         result = self.get_status(keyexpression)
         return result
@@ -31,15 +30,19 @@ class Queryable:
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         logging.debug("Received query: {}".format(query.selector))
         event = Workflow(**query.selector.decode_parameters())
-        if event.timestamp == "Failure" or event.event == "Failure" or event.workflow == "Failure":
+        logging.debug("Events: {}".format(event))
+        if event.timestamp == "" and event.event == "" and event.workflow == "":
             payload = {"response_type":"Rejected","response":"Timestamp, event or workflow is not Valid or the arguments are missing."}
         else:
             result = self.check_status(event)
-            if result["response_type"] == "Accepted":
-                payload = {"response_type":"Accepted","response":result["response"]}
+            if result != {}:
+                if result["response_type"] == "Accepted":
+                    payload = {"response_type":"Accepted","response":result["response"]}
+                else:
+                    payload = {"response_type":"Rejected","response":result["response"]}
             else:
-                payload = {"response_type":"Rejected","response":result["response"]}
-        query.reply(zenoh.Sample("TipChecker/trigger", payload))
+                payload = {"response_type":"Rejected","response":"Workflow not found."}
+        query.reply(zenoh.Sample(keyexpression, payload))
 
 class Session:
     def __init__(self, handler: Queryable) -> None:

@@ -34,10 +34,16 @@ class Workflow(BaseModel):
         event(str): an event which user want to trigger.
         workflow(str): the workflow which user want to trigger.
     '''
+    workflow: str = ""
     timestamp: str = ""
     event: str = ""
-    workflow: str = ""
     
+    @validator('workflow')
+    def must_be_a_valid_workflow(cls, v: str) -> str:
+        if v == None or v == "":
+            return "Failure"
+        return v
+
     @validator('timestamp')
     def must_be_a_timestamp(cls, v: str) -> Union[datetime, str]:
         try:
@@ -48,12 +54,6 @@ class Workflow(BaseModel):
 
     @validator('event')
     def must_be_a_valid_event(cls, v: str) -> str:
-        if v == None or v == "":
-            return "Failure"
-        return v
-
-    @validator('workflow')
-    def must_be_a_valid_workflow(cls, v: str) -> str:
         if v == None or v == "":
             return "Failure"
         return v
