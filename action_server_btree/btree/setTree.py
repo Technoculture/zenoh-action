@@ -31,12 +31,12 @@ class SetTree(Tree):
 
         # Setup parent-child relationships
         
-        root.AddChild([root, level1, level2, level2_1, level2_1_1, level2_1_2, level2_1_3, 
+        level1.AddChild([level1, level2, level2_1, level2_1_1, level2_1_2, level2_1_3, 
                        level2_1_3_1, level2_1_3_2, level2_1_3_3, level2_1_4, level2_2, level2_2_1, 
                        level2_2_2, level2_2_3, level3, level3_1, level3_2, level3_2_1, level3_2_1_1, 
                        level3_2_1_2, level3_2_1_3, level3_2_1_4, level3_2_1_4_1, level4])
         
-        return root
+        return level1
 
 if __name__ == "__main__":
     tree = SetTree()

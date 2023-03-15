@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from pydantic import ValidationError    #type: ignore
 from typing import Iterator
 from triggervalidator import Event
 from setTree import SetTree
@@ -18,18 +19,19 @@ class Queryable:
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         """ Handle the query for the trigger queryable."""
-
-        logging.debug("Received query: {}".format(query.selector))
-        event = Event(**query.selector.decode_parameters())
-        if event.timestamp == "Failure" or event.event == "Failure":
-            payload = {"response_type":"Rejected","response":"Timestamp or event is not Valid or the arguments are missing."}
-        else:
+        try:
+            logging.debug("Received query: {}".format(query.selector))
+            event = Event(**query.selector.decode_parameters())
             root = self.tree.SetupTree()
             value = root.Evaluate(event.event, event.timestamp)
             if value == NodeState.SUCCESS:
-                payload = {"response_type":"Accepted", "response":"Get Tip Success."}
+                payload = {"response_type":"Accepted", "response":"Event Accepted and triggered."}
             else:
-                payload = {"response_type":"Rejected", "response":"Get Tip Failure."}
+                payload = {"response_type":"Rejected", "response":"Event Not Accepted and Failed."}
+        
+        except (ValidationError, ValueError) as e:
+            payload = {"response_type":"Rejected","response":"Timestamp or event is not Valid or the arguments are missing."}
+
         query.reply(zenoh.Sample("GetTip/trigger", payload))
 
 class Session:

@@ -9,21 +9,21 @@ class Event(BaseModel):
         timestamp(datetime): the time of occurrence of requesting query.
         event(str): an event which user want to trigger.
     '''
-    timestamp: str = ""
-    event: str = ""
+    timestamp: str
+    event: str
     
     @validator('timestamp')
     def must_be_a_timestamp(cls, v: str) -> Union[datetime, str]:
         try:
             s = datetime.fromtimestamp(float(v))
         except ValueError:
-            return "Failure"
-        return s
+            raise ValueError("Timestamp is not valid.")
+        return v
 
     @validator('event')
     def must_be_a_valid_event(cls, v: str) -> str:
-        if v == None or v == "":
-            return "Failure"
+        if v == "":
+            raise ValueError("Event can't be empty.")
         return v
 
 class Workflow(BaseModel):
@@ -34,14 +34,14 @@ class Workflow(BaseModel):
         event(str): an event which user want to trigger.
         workflow(str): the workflow which user want to trigger.
     '''
-    workflow: str = ""
-    timestamp: str = ""
-    event: str = ""
+    workflow: str
+    timestamp: str
+    event: str
     
     @validator('workflow')
     def must_be_a_valid_workflow(cls, v: str) -> str:
         if v == None or v == "":
-            return "Failure"
+            raise ValueError("Workflow can't be empty.")
         return v
 
     @validator('timestamp')
@@ -49,11 +49,11 @@ class Workflow(BaseModel):
         try:
             s = datetime.fromtimestamp(float(v))
         except ValueError:
-            return "Failure"
+            raise ValueError("Timestamp is not valid.")
         return s
 
     @validator('event')
     def must_be_a_valid_event(cls, v: str) -> str:
         if v == None or v == "":
-            return "Failure"
+            raise ValueError("Event can't be empty.")
         return v

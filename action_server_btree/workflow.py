@@ -28,12 +28,10 @@ class Queryable:
         return result
     
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
-        logging.debug("Received query: {}".format(query.selector))
-        event = Workflow(**query.selector.decode_parameters())
-        logging.debug("Events: {}".format(event))
-        if event.timestamp == "" and event.event == "" and event.workflow == "":
-            payload = {"response_type":"Rejected","response":"Timestamp, event or workflow is not Valid or the arguments are missing."}
-        else:
+        try:
+            logging.debug("Received query: {}".format(query.selector))
+            event = Workflow(**query.selector.decode_parameters())
+            logging.debug("Events: {}".format(event))
             result = self.check_status(event)
             if result != {}:
                 if result["response_type"] == "Accepted":
@@ -42,6 +40,8 @@ class Queryable:
                     payload = {"response_type":"Rejected","response":result["response"]}
             else:
                 payload = {"response_type":"Rejected","response":"Workflow not found."}
+        except Exception as e:
+            payload = {"response_type":"Rejected","response":"Timestamp, event or workflow is not Valid or the arguments are missing."}
         query.reply(zenoh.Sample(keyexpression, payload))
 
 class Session:

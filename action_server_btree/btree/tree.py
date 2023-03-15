@@ -33,6 +33,7 @@ class Selector(Node):
         super().__init__(children)
 
     def Evaluate(self, _node, _timestamp) -> NodeState:
+        state = NodeState.FAILURE
         if _node in non_hardware_nodes:
             match non_hardware_node().Evaluate(_node, _timestamp):
                 case NodeState.SUCCESS:
@@ -52,10 +53,11 @@ class Selector(Node):
         return state
 
 class Exception(Node):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, children) -> None:
+        super().__init__(children)
 
     def Evaluate(self, _node, _timestamp) -> NodeState:
+        state = NodeState.FAILURE
         global value
         if self._datacontext == {}:
             return NodeState.FAILURE
@@ -73,5 +75,5 @@ class Exception(Node):
             self.clearData()
         else:
             self.setData("count", value+1)
-            state = NodeState.FAILURE
+            state = NodeState.SUCCESS
         return state
