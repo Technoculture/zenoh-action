@@ -1,7 +1,7 @@
 from typing import Protocol, Iterator
 from pydantic import ValidationError    #type: ignore
 from contextlib import contextmanager
-from triggervalidator.triggervalidator import Event
+from ..triggervalidator import triggervalidator
 import logging
 import time
 import zenoh # type: ignore

@@ -7,6 +7,7 @@ name = "pypi"
 py-trees = "*"
 eclipse-zenoh = "==0.7.0rc0"
 pydantic = "==1.10.3"
+setuptools = "*"
 
 [dev-packages]
 
