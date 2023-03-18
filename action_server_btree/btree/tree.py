@@ -24,32 +24,38 @@ class Tree:
 
 class Selector(Node):
     """
-    Note:
-    Add the returned state to the datacontext dictionary.
-    remove loop from the evaluate function.
-    return state from the evaluate function.
+    Evaluate the children which doesn't need hardware validation.
     """
     def __init__(self, children) -> None:
         super().__init__(children)
 
     def Evaluate(self, _node, _timestamp) -> NodeState:
         state = NodeState.FAILURE
-        if _node in non_hardware_nodes:
-            match non_hardware_node().Evaluate(_node, _timestamp):
-                case NodeState.SUCCESS:
-                    state = NodeState.SUCCESS
-                case NodeState.FAILURE:
-                    state = NodeState.FAILURE
+        match non_hardware_node().Evaluate(_node, _timestamp):
+            case NodeState.SUCCESS:
+                state = NodeState.SUCCESS
+            case NodeState.FAILURE:
+                state = NodeState.FAILURE
 
-        elif _node in hardware_nodes:
-            match hardware_node().Evaluate(_node, _timestamp):
-                case NodeState.SUCCESS:
-                    state = NodeState.SUCCESS
-                case NodeState.FAILURE:
-                    state = NodeState.FAILURE
-                case NodeState.ERROR:
-                    state = NodeState.ERROR
-                    self.clearData()
+        return state
+    
+class Sequence(Node):
+    """
+    Evaluate the children which needs hardware validation.
+    """
+    def __init__(self, children) -> None:
+        super().__init__(children)
+    
+    def Evaluate(self, _node, _timestamp) -> NodeState:
+        state = NodeState.FAILURE
+        match hardware_node().Evaluate(_node, _timestamp):
+            case NodeState.SUCCESS:
+                state = NodeState.SUCCESS
+            case NodeState.FAILURE:
+                state = NodeState.FAILURE
+            case NodeState.ERROR:
+                state = NodeState.ERROR
+                self.clearData()
         return state
 
 class Exception(Node):
