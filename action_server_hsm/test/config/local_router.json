@@ -1,6 +1,0 @@
-{
-  mode: "peer",
-  connect: {
-    endpoints: ["tcp/13.233.6.77:7447"],
-  },
-}
