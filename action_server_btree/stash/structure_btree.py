@@ -68,4 +68,8 @@ def get_tip():
 
 if __name__ == '__main__':
     root = get_tip()
-    print(root.children)
+    root.setup(timeout=15)
+    for i in range(0, 5):
+        root.tick_once()
+        print(root.status)
+    
