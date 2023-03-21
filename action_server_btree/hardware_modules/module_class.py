@@ -52,3 +52,7 @@ class PrepareToDiscard(Node):
 class EjectTip(Node):
     def Evaluate(self):
         return NodeState.SUCCESS
+
+class RetryCountBelowThreshold(Node):
+    def Evaluate(self):
+        return NodeState.FAILURE
