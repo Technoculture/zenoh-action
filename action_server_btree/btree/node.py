@@ -24,17 +24,15 @@ class Node:
 
     def _Attach(self, node):
         # Attach a child node to this node.
-        for child in node.name:
-            Node.children.append(child)
-        if node.parent == None:
-            Node.parent = self
+        node.parent = self
+        self.children.append(node)
     
     def AddChild(self, children):
         # Add a child node to this node.
         for child in children:
             self._Attach(child)
 
-    def Evaluate(self, _node, _timestamp) -> NodeState:
+    def Evaluate(self) -> NodeState:
         # Evaluate the node. Overidden Function
         ...
     
