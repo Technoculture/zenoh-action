@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from pydantic import ValidationError    #type: ignore
 from typing import Iterator
 from setTree import SetTree
-from node import NodeState
+from btree.node import NodeState
 import logging
 import time
 import zenoh #type: ignore
@@ -20,9 +20,8 @@ class Queryable:
         """ Handle the query for the trigger queryable."""
         try:
             logging.debug("Received query: {}".format(query.selector))
-            event = query.selector.decode_parameters()
-            root = self.tree.SetupTree()
-            value = root.Evaluate(event.event, event.timestamp)
+            root = self.tree.SetUpTree()
+            value = root.Evaluate()
             if value == NodeState.SUCCESS:
                 payload = {"response_type":"Accepted", "response":"Event Accepted and triggered."}
             else:
