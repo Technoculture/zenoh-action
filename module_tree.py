@@ -1,4 +1,4 @@
-from btree import tree, selector, sequence
+from btree import tree, selector, sequence, node
 import module_class
 
 class Tip_Available_In_Tray(tree.Tree):
@@ -22,7 +22,6 @@ class Move_tip_slider_to_pos(tree.Tree):
             selector.Selector([module_class.MoveTipSlider()]),
             selector.Selector([module_class.SliderReached()])
         ])
-
         return root
 
 class Discard_tip_success(tree.Tree):

@@ -7,7 +7,7 @@ import zenoh # type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-keyexpression:str = "workflow/trigger"
+workflow = ["intake_new_sample", "sample_quality_check", "get_tip", "sample_purification", "sample_processing", "detection", "result_and_cleanup"]
 
 class Queryable:
 
@@ -22,26 +22,28 @@ class Queryable:
         return {}
 
     def check_status(self, event) -> Dict[str, str]:
-        keyexpression = "{}/trigger?timestamp={}&event={}".format(event.workflow, event.timestamp, event.event)
+        keyexpression = "{}/trigger?timestamp={}".format(event, time.time())
         result = self.get_status(keyexpression)
         return result
     
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
+        global workflow
         try:
             logging.debug("Received query: {}".format(query.selector))
-            event = Workflow(**query.selector.decode_parameters())
-            logging.debug("Events: {}".format(event))
-            result = self.check_status(event)
-            if result != {}:
-                if result["response_type"] == "Accepted":
-                    payload = {"response_type":"Accepted","response":result["response"]}
+            for event in workflow:
+                result = self.check_status(event)
+                if result != {}:
+                    if result["response_type"] == "Accepted":
+                        payload = {"response_type":"Accepted","response":result["response"]}
+                    else:
+                        payload = {"response_type":"Rejected","response":result["response"]}
+                        break
                 else:
-                    payload = {"response_type":"Rejected","response":result["response"]}
-            else:
-                payload = {"response_type":"Rejected","response":"Workflow not found."}
-        except Exception as e:
-            payload = {"response_type":"Rejected","response":"Timestamp, event or workflow is not Valid or the arguments are missing."}
-        query.reply(zenoh.Sample(keyexpression, payload))
+                    payload = {"response_type":"Rejected","response":"{} Module is not responding.".format(event)}
+                    break
+        except ValueError as e:
+            payload = {"response_type":"Rejected","response": e}
+        query.reply(zenoh.Sample("Workflow/trigger", payload))
 
 class Session:
     def __init__(self, handler: Queryable) -> None:
@@ -50,7 +52,7 @@ class Session:
         global keyexpression
         self.config = zenoh.Config()
         self.session = zenoh.open(self.config)
-        self.trigger_queryable = self.session.declare_queryable(keyexpression, self.handler.trigger_queryable_handler)
+        self.trigger_queryable = self.session.declare_queryable("Workflow/trigger", self.handler.trigger_queryable_handler)
         
     def close(self):
         self.session.close()
