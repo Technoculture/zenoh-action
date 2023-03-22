@@ -1,7 +1,7 @@
-from btree import Tree, selector, sequence
+from btree import tree, selector, sequence
 import module_class
 
-class Tip_Available_In_Tray(Tree):
+class Tip_Available_In_Tray(tree.Tree):
     def SetUpTree(self):
         root = sequence.Sequence([
             selector.Selector([module_class.DiscardCurrentTray()]),
@@ -15,7 +15,7 @@ class Tip_Available_In_Tray(Tree):
         ])
         return root
 
-class Move_tip_slider_to_pos(Tree):
+class Move_tip_slider_to_pos(tree.Tree):
     def SetUpTree(self):
         root = sequence.Sequence([
             selector.Selector([module_class.AlreadyInPos()]),
@@ -25,12 +25,12 @@ class Move_tip_slider_to_pos(Tree):
 
         return root
 
-class Discard_tip_success(Tree):
+class Discard_tip_success(tree.Tree):
     def SetUpTree(self):
         root = selector.Selector([module_class.RetryCountBelowThreshold()])
         return root
 
-class Caught_tip_firm_and_orient(Tree):
+class Caught_tip_firm_and_orient(tree.Tree):
     def SetUpTree(self):
         root = selector.Selector([
             sequence.Sequence([
