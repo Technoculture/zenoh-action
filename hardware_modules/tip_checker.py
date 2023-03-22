@@ -1,7 +1,6 @@
 from typing import Protocol, Iterator
-from contextlib import contextmanager
-from pydantic import ValidationError    #type: ignore
-from triggervalidator import Event
+from contextlib import AbstractContextManager
+import module_tree
 import logging
 import time
 import zenoh # type: ignore
@@ -16,9 +15,22 @@ class TipChecker(Protocol):
 
 class Tip_checker:
     def caught_tip_firm_and_orient(self) -> str:
-        return "Accepted"
+        caughttipfirmandorient = module_tree.Caught_tip_firm_and_orient()
+        root = caughttipfirmandorient.SetUpTree()
+        result = root.Evaluate()
+        if result == module_tree.node.NodeState.SUCCESS:
+            return "Accepted"
+        else:
+            return result
+        
     def discard_tip_success(self) -> str:
-        return "Accepted"
+        discardtipsuccess = module_tree.Discard_tip_success()
+        root = discardtipsuccess.SetUpTree()
+        result = root.Evaluate()
+        if result == module_tree.node.NodeState.SUCCESS:
+            return "Accepted"
+        else:
+            return result
 
 class Queryable:
     def __init__(self, tip_checker: TipChecker) -> None:
@@ -31,12 +43,14 @@ class Queryable:
         try:
             logging.debug("Received query: {}".format(query.selector))
             event = query.selector.decode_parameters()
-            event = Event(**query.selector.decode_parameters())
-            result = self.check_status(self.tip_checker, event.event)
-            payload = {"response_type":"Accepted","response":result}
-        except (ValueError, ValidationError) as e:
+            result = self.check_status(self.tip_checker, event['event'])
+            if result == "Accepted":
+                payload = {"response_type":"Accepted","response":"Successfully executed."}
+            else:
+                payload = {"response_type":"Rejected","response":result}
+        except ValueError as e:
             payload = {"response_type":"Rejected","response":"Timestamp or event is not Valid or the arguments are missing."}
-        query.reply(zenoh.Sample("TipRM/trigger", payload))
+        query.reply(zenoh.Sample("TipChecker/trigger", payload))
 
 
 class Session:
