@@ -1,6 +1,5 @@
 from typing import Iterator, Dict
 from contextlib import contextmanager
-from triggervalidator.triggervalidator import Workflow
 import json
 import logging
 import time
