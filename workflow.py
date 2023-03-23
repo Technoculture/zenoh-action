@@ -7,7 +7,7 @@ import zenoh # type: ignore
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-workflow = ["intake_new_sample", "sample_quality_check", "get_tip", "sample_purification", "sample_processing", "detection", "result_and_cleanup"]
+workflow = ["GetTip"]
 
 class Queryable:
 
@@ -18,7 +18,11 @@ class Queryable:
         session = zenoh.open(zenoh.Config())
         replies = session.get(key_expression, zenoh.Queue(), zenoh.QueryTarget.ALL())
         for reply in replies:
-            return json.loads(reply.ok.payload.decode("utf-8"))
+            try:
+                value = json.loads(reply.ok.payload.decode("utf-8"))
+            except:
+                value = json.loads(reply.err.payload.decode("utf-8"))
+            return value
         return {}
 
     def check_status(self, event) -> Dict[str, str]:
@@ -39,15 +43,16 @@ class Queryable:
                         payload = {"response_type":"Rejected","response":result["response"]}
                         break
                 else:
-                    payload = {"response_type":"Rejected","response":"{} Module is not responding.".format(event)}
+                    payload = {"response_type":"Rejected","response":"{} Module is not responding. Please check Connection.".format(event)}
                     break
         except ValueError as e:
-            payload = {"response_type":"Rejected","response": e}
+            payload = {"response_type":"Rejected", "response": "{}".format(e)}
         query.reply(zenoh.Sample("Workflow/trigger", payload))
 
 class Session:
     def __init__(self, handler: Queryable) -> None:
         self.handler = handler
+    
     def open(self):
         global keyexpression
         self.config = zenoh.Config()

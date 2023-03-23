@@ -1,4 +1,4 @@
-from btree.node import Node, NodeState
+from btree.node import Node, NodeState # type: ignore
 
 class Selector(Node):
     """
