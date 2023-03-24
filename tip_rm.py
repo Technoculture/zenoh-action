@@ -56,19 +56,18 @@ class Tip_rm:
 
     def tip_available_in_tray(self) -> str:
         logging.debug("Checking if tip is available in tray.")
-        '''
-        tipcount = node.Node.getData(key="TipTraycount")
-        if tipcount > 0:
-            tipavailableintray = btrees.Tip_Available_In_Tray()
-            root = tipavailableintray.SetUpTree()
-            result = root.Evaluate()
-            if result == node.NodeState.SUCCESS:
-                return "Accepted"
-            else:
-                return result
+        #tipcount = node.Node.getData(key="TipTraycount")
+        #if tipcount > 0:
+        tipavailableintray = btrees.Tip_Available_In_Tray()
+        root = tipavailableintray.SetUpTree()
+        result = root.Evaluate()
+        if result == node.NodeState.SUCCESS:
+            return "Accepted"
         else:
-            return "No tips available in tray."'''
-        return "Accepted"
+            return "No tips available in tray."
+        #else:
+        #    return "No tips available in tray."
+        #return "Accepted"
 
     def discard_current_tray(self) -> str:
         logging.debug("Discarding current tray.")
@@ -131,9 +130,10 @@ class Queryable:
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         try:
-            logging.debug("Received query: {}".format(query.selector))
+            #logging.debug("Received query: {}".format(query.selector))
             event = query.selector.decode_parameters()
             result = self.check_status(self.Tip_rm, event['event'])
+            #print(result + " " + event['event'])
             if result == "Accepted":
                 payload = {"response_type":"Accepted","response":result}
             else:

@@ -1,19 +1,27 @@
 from btree import tree, selector, sequence #type: ignore
 from btree import btree_classes
 
-class SetTree(tree.Tree):
-    def SetupTree(self):
+class Workflow_btree(tree.Tree):
+    def SetUpTree(self):
         root = sequence.Sequence([
-            selector.Selector([btree_classes.TipAvailable()]),
+            selector.Selector([btree_classes.Intake_new_sample()]),
+            selector.Selector([btree_classes.Sample_quality_check()]),
             sequence.Sequence([
-                selector.Selector([btree_classes.TipAvailableInTray()]),
-                selector.Selector([btree_classes.MoveTipSliderToPos()])
-            ]),
-            sequence.Sequence([
-                selector.Selector([btree_classes.PickUp()]),
-                selector.Selector([btree_classes.CaughtTipFirmAndOriented()])
-            ]),
-            selector.Selector([btree_classes.PickupSuccess()])
+                    selector.Selector([btree_classes.TipAvailable()]),
+                    sequence.Sequence([
+                        selector.Selector([btree_classes.TipAvailableInTray()]),
+                        selector.Selector([btree_classes.MoveTipSliderToPos()])
+                    ]),
+                    sequence.Sequence([
+                        selector.Selector([btree_classes.PickUp()]),
+                        selector.Selector([btree_classes.CaughtTipFirmAndOriented()])
+                    ]),
+                    selector.Selector([btree_classes.PickupSuccess()])
+                ]),
+            selector.Selector([btree_classes.Sample_processing()]),
+            selector.Selector([btree_classes.Sample_processing()]),
+            selector.Selector([btree_classes.Detection()]),
+            selector.Selector([btree_classes.Result_and_cleanup()]),
         ])
         return root
 
@@ -56,4 +64,3 @@ class Caught_tip_firm_and_orient(tree.Tree):
             ])
         ])
         return root
-
