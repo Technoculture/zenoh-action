@@ -19,11 +19,11 @@ class Orchestrator(Protocol):
 
 class Orchestrator_:
     def pick_up(self) -> str:
-        logging.debug("Checking if tip is picked up.")
+        #logging.debug("Checking if tip is picked up.")
         return "Accepted"
     
     def caught_tip_firm_and_orient(self) -> str:
-        logging.debug("Checking if tip is caught, firm and oriented.")
+        #logging.debug("Checking if tip is caught, firm and oriented.")
         caughttipfirmandorient = btrees.Caught_tip_firm_and_orient()
         root = caughttipfirmandorient.SetUpTree()
         result = root.Evaluate()
@@ -34,11 +34,11 @@ class Orchestrator_:
             return "Orchestrator denied that tip does not caught firm and orient."
 
     def go_to_discard_position(self) -> str:
-        logging.debug("Going to discard position.")
+       # logging.debug("Going to discard position.")
         return "Accepted"
     
     def discard_tip_success(self) -> str:
-        logging.debug("Checking if tip is discarded successfully.")
+        #logging.debug("Checking if tip is discarded successfully.")
         discardtipsuccess = btrees.Discard_tip_success()
         root = discardtipsuccess.SetUpTree()
         result = root.Evaluate()
@@ -57,7 +57,7 @@ class Queryable:
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         try:
-            logging.debug("Received query: {}".format(query.selector))
+            #logging.debug("Received query: {}".format(query.selector))
             event = query.selector.decode_parameters()
             result = self.check_status(self.orchestrator, event.event)
             if result == "Accepted":
@@ -66,6 +66,8 @@ class Queryable:
                 payload = {"response_type":"Rejected","response":result}
         except ValueError as e:
             payload = {"response_type":"Rejected", "response": "{}".format(e)}
+
+        logging.debug("Sending response: {} for event {}".format(payload, event['event']))
         query.reply(zenoh.Sample("Orchestrator/trigger", payload))
 
 

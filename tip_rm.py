@@ -46,7 +46,7 @@ class TipRM(Protocol):
 
 class Tip_rm:
     def tip_available(self) -> str:
-        logging.debug("Checking if tip is available.")
+        #logging.debug("Checking if tip is available.")
         '''
         if node.Node.getData("Tipcount") > 0:
             return "Accepted"
@@ -55,10 +55,10 @@ class Tip_rm:
         return "Accepted"
 
     def tip_available_in_tray(self) -> str:
-        logging.debug("Checking if tip is available in tray.")
+        #logging.debug("Checking if tip is available in tray.")
         #tipcount = node.Node.getData(key="TipTraycount")
         #if tipcount > 0:
-        tipavailableintray = btrees.Tip_Available_In_Tray()
+        '''tipavailableintray = btrees.Tip_Available_In_Tray()
         root = tipavailableintray.SetUpTree()
         result = root.Evaluate()
         if result == node.NodeState.SUCCESS:
@@ -66,15 +66,15 @@ class Tip_rm:
         else:
             return "No tips available in tray."
         #else:
-        #    return "No tips available in tray."
-        #return "Accepted"
+        #    return "No tips available in tray."'''
+        return "Accepted"
 
     def discard_current_tray(self) -> str:
-        logging.debug("Discarding current tray.")
+        #logging.debug("Discarding current tray.")
         return "Accepted"
 
     def tray_available(self) -> str:
-        logging.debug("Checking if tray is available.")
+        #logging.debug("Checking if tray is available.")
         '''
         if node.Node.getData("Traycount") > 0:
             return "Accepted"
@@ -83,42 +83,42 @@ class Tip_rm:
         return "Accepted"
 
     def slider_move_to_load(self) -> str:
-        logging.debug("Slider moving to load.")
+        #logging.debug("Slider moving to load.")
         return "Accepted"
 
     def load_next_tray(self) -> str:
-        logging.debug("Loading next tray.")
+        #logging.debug("Loading next tray.")
         return "Accepted"
     
     def prepare_to_discard(self) -> str:
-        logging.debug("Preparing to discard.")
+        #logging.debug("Preparing to discard.")
         return "Accepted"
 
     def move_tip_slider_to_pos(self) -> str:
-        logging.debug("Moving tip slider to position.")
+        #logging.debug("Moving tip slider to position.")
         movetipslidertopos = btrees.Move_tip_slider_to_pos()
         root = movetipslidertopos.SetUpTree()
         result = root.Evaluate()
         if result == "Accepted":
             return "Accepted"
         else:
-            logging.debug("Problem in moving tip slider to position.")
+            #logging.debug("Problem in moving tip slider to position.")
             return "Problem in moving tip slider to position."
     
     def pickup_success(self) -> str:
-        logging.debug("Pickup success.")
+        #logging.debug("Pickup success.")
         return "Accepted"
     
     def move_tip_slider(self) -> str:
-        logging.debug("Moving tip slider.")
+        #logging.debug("Moving tip slider.")
         return "Accepted"
     
     def slider_reached(self) -> str:
-        logging.debug("Slider reached.")
+        #logging.debug("Slider reached.")
         return "Accepted"
     
     def already_in_pos(self) -> str:
-        logging.debug("Already in position.")
+        #logging.debug("Already in position.")
         return "Accepted"
 
 class Queryable:
@@ -140,6 +140,8 @@ class Queryable:
                 payload = {"response_type":"Rejected","response":result}
         except ValueError as e:
             payload = {"response_type":"Rejected","response":"{}".format(e)}
+
+        logging.debug("Sending response for event {}".format(event['event']))
         query.reply(zenoh.Sample("TipRm/trigger", payload))
 
 class Session:

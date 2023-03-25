@@ -23,42 +23,42 @@ def get_status(key_expression: str) -> Dict[str, str]:
         except:
             value = json.loads(reply.err.payload.decode("utf-8"))
         return value
-    #session.close()
+    session.close()
     return {}
 
 class Intake_new_sample(Node):
     def Evaluate(self):
-        logging.debug("Intake_new_Sample")
+        logging.warning("Intake_new_Sample")
         state = NodeState.SUCCESS
         return state
     
 class Sample_quality_check(Node):
     def Evaluate(self):
-        logging.debug("Sample_quality_check")
+        logging.warning("Sample_quality_check")
         state = NodeState.SUCCESS
         return state
     
 class Sample_purification(Node):
     def Evaluate(self):
-        logging.debug("Sample_purification")
+        logging.warning("Sample_purification")
         state = NodeState.SUCCESS
         return state
 
 class Sample_processing(Node):
     def Evaluate(self):
-        logging.debug("Sample_processing")
+        logging.warning("Sample_processing")
         state = NodeState.SUCCESS
         return state
 
 class Detection(Node):
     def Evaluate(self):
-        logging.debug("Detection")
+        logging.warning("Detection")
         state = NodeState.SUCCESS
         return state
     
 class Result_and_cleanup(Node):
     def Evaluate(self):
-        logging.debug("Result_and_cleanup")
+        logging.warning("Result_and_cleanup")
         state = NodeState.SUCCESS
         return state
 
@@ -74,12 +74,12 @@ class TipAvailable(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("TipAvailable: {}".format(state))
+        logging.warning("TipAvailable: {}".format(state))
         return state
 
 class TipAvailableInTray(Node):
     def Evaluate(self):
-        logging.debug("TipAvailableInTray")
+        logging.warning("TipAvailableInTray")
         keyexpression = "TipRm/trigger?timestamp={}&event=tip_available_in_tray".format(time.time())
         result = get_status(keyexpression)
         print(result)
@@ -90,12 +90,12 @@ class TipAvailableInTray(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("TipAvailableInTray: {}".format(state))
+        logging.warning("TipAvailableInTray: {}".format(state))
         return state
 
 class MoveTipSliderToPos(Node):
     def Evaluate(self):
-        logging.debug("MoveTipSliderToPos")
+        logging.warning("MoveTipSliderToPos")
         keyexpression = "TipRm/trigger?timestamp={}&event=move_tip_slider_to_pos".format(time.time())
         result = get_status(keyexpression)
         print(result)
@@ -106,12 +106,12 @@ class MoveTipSliderToPos(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("MoveTipSliderToPos: {}".format(state))
+        logging.warning("MoveTipSliderToPos: {}".format(state))
         return state
 
 class PickUp(Node):
     def Evaluate(self):
-        logging.debug("PickUp")
+        logging.warning("PickUp")
         keyexpression = "Orchestrator/trigger?timestamp={}&event=pick_up".format(time.time())
         result = get_status(keyexpression)
         print(result)
@@ -122,12 +122,12 @@ class PickUp(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("PickUp: {}".format(state))
+        logging.warning("PickUp: {}".format(state))
         return state
 
 class CaughtTipFirmAndOriented(Node):
     def Evaluate(self):
-        logging.debug("CaughtTipFirmAndOriented")
+        logging.warning("CaughtTipFirmAndOriented")
         keyexpression = "TipChecker/trigger?timestamp={}&event=caught_tip_firm_and_orient".format(time.time())
         _keyexpression = "Orchestrator/trigger?timestamp={}&event=caught_tip_firm_and_oriented".format(time.time())
         result = get_status(keyexpression)
@@ -140,12 +140,12 @@ class CaughtTipFirmAndOriented(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("CaughtTipFirmAndOriented: {}".format(state))
+        logging.warning("CaughtTipFirmAndOriented: {}".format(state))
         return state
 
 class PickupSuccess(Node):
     def Evaluate(self):
-        logging.debug("PickupSuccess")
+        logging.warning("PickupSuccess")
         keyexpression = "TipRm/trigger?timestamp={}&event=pick_up_success".format(time.time())
         result = get_status(keyexpression)
         print(result)
@@ -156,12 +156,12 @@ class PickupSuccess(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("PickupSuccess: {}".format(state))
+        logging.warning("PickupSuccess: {}".format(state))
         return state
 
 class DiscardCurrentTray(Node):
     def Evaluate(self):
-        logging.debug("DiscardCurrentTray")
+        logging.warning("DiscardCurrentTray")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=discard_current_tray"
         result = get_status(keyexpression)
         print("class: {}".format(result))
@@ -172,12 +172,12 @@ class DiscardCurrentTray(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("DiscardCurrentTray: {}".format(state))
+        logging.warning("DiscardCurrentTray: {}".format(state))
         return state
 
 class DiscardSuccess(Node):
     def Evaluate(self):
-        logging.debug("DiscardSuccess")
+        logging.warning("DiscardSuccess")
         keyexpression = "Pipette/trigger?timestamp=123456789&event=discard_success"
         result = get_status(keyexpression)
         print(result)
@@ -188,12 +188,12 @@ class DiscardSuccess(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("DiscardSuccess: {}".format(state))
+        logging.warning("DiscardSuccess: {}".format(state))
         return state
 
 class TrayAvailable(Node):
     def Evaluate(self):
-        logging.debug("TrayAvailable")
+        logging.warning("TrayAvailable")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=tray_available"
         result = get_status(keyexpression)
         print(result)
@@ -204,12 +204,12 @@ class TrayAvailable(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("TrayAvailable: {}".format(state))
+        logging.warning("TrayAvailable: {}".format(state))
         return state
 
 class SliderMoveToLoad(Node):
     def Evaluate(self):
-        logging.debug("SliderMoveToLoad")
+        logging.warning("SliderMoveToLoad")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=slider_move_to_load"
         result = get_status(keyexpression)
         print("class: {}".format(result))
@@ -220,15 +220,15 @@ class SliderMoveToLoad(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("SliderMoveToLoad: {}".format(state))
+        logging.warning("SliderMoveToLoad: {}".format(state))
         return state
 
 class LoadNextTray(Node):
     def Evaluate(self):
-        logging.debug("LoadNextTray")
+        logging.warning("LoadNextTray")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=load_next_tray"
         result = get_status(keyexpression)
-        print(result)
+        logging.warning("LoadNextTray result: {} in class".format(result))
         if result != {}:
             if result["response_type"] == "Accepted":
                 state = NodeState.SUCCESS
@@ -236,15 +236,15 @@ class LoadNextTray(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("LoadNextTray: {}".format(state))
+        logging.warning("LoadNextTray: {}".format(state))
         return state
 
 class LoadSuccess(Node):
     def Evaluate(self):
-        logging.debug("LoadSuccess")
+        logging.warning("LoadSuccess")
         keyexpression = "Pipette/trigger?timestamp=123456789&event=load_success"
         result = get_status(keyexpression)
-        print(result)
+        logging.warning("LoadSuccess result: {} in class".format(result))
         if result != {}:
             if result["response_type"] == "Accepted":
                 state = NodeState.SUCCESS
@@ -252,15 +252,15 @@ class LoadSuccess(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("LoadSuccess: {}".format(state))
+        logging.warning("LoadSuccess: {}".format(state))
         return state
     
 class AlreadyInPos(Node):
     def Evaluate(self):
-        logging.debug("AlreadyInPos")
+        logging.warning("AlreadyInPos")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=already_in_pos"
         result = get_status(keyexpression)
-        print(result)
+        logging.warning("MoveTipSlider result: {} in class".format(result))
         if result != {}:
             if result["response_type"] == "Accepted":
                 state = NodeState.SUCCESS
@@ -268,15 +268,15 @@ class AlreadyInPos(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("AlreadyInPos: {}".format(state))
+        logging.warning("AlreadyInPos: {}".format(state))
         return state
     
 class MoveTipSlider(Node):
     def Evaluate(self):
-        logging.debug("MoveTipSlider")
+        logging.warning("MoveTipSlider")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=move_tip_slider"
         result = get_status(keyexpression)
-        logging.debug("MoveTipSlider result: {} in class".format(result))
+        logging.warning("MoveTipSlider result: {} in class".format(result))
         if result != {}:
             if result["response_type"] == "Accepted":
                 state = NodeState.SUCCESS
@@ -284,12 +284,12 @@ class MoveTipSlider(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("MoveTipSlider: {}".format(state))
+        logging.warning("MoveTipSlider: {}".format(state))
         return state
     
 class SliderReached(Node):
     def Evaluate(self):
-        logging.debug("SliderReached")
+        logging.warning("SliderReached")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=slider_reached"
         result = get_status(keyexpression)
         print(result)
@@ -300,12 +300,12 @@ class SliderReached(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("SliderReached: {}".format(state))
+        logging.warning("SliderReached: {}".format(state))
         return state
 
 class GoToDiscardPos(Node):
     def Evaluate(self):
-        logging.debug("GoToDiscardPos")
+        logging.warning("GoToDiscardPos")
         keyexpression = "Orchestrator/trigger?timestamp=123456789&event=goto_discard_position"
         result = get_status(keyexpression)
         print(result)
@@ -316,12 +316,12 @@ class GoToDiscardPos(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("GoToDiscardPos: {}".format(state))
+        logging.warning("GoToDiscardPos: {}".format(state))
         return state
     
 class PrepareToDiscard(Node):
     def Evaluate(self):
-        logging.debug("PrepareToDiscard")
+        logging.warning("PrepareToDiscard")
         keyexpression = "TipRm/trigger?timestamp=123456789&event=prepare_to_discard"
         result = get_status(keyexpression)
         print(result)
@@ -332,12 +332,12 @@ class PrepareToDiscard(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("PrepareToDiscard: {}".format(state))
+        logging.warning("PrepareToDiscard: {}".format(state))
         return state
     
 class EjectTip(Node):
     def Evaluate(self):
-        logging.debug("EjectTip")
+        logging.warning("EjectTip")
         keyexpression = "Pipette/trigger?timestamp=123456789&event=eject_tip"
         result = get_status(keyexpression)
         print(result)
@@ -348,17 +348,17 @@ class EjectTip(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("EjectTip: {}".format(state))
+        logging.warning("EjectTip: {}".format(state))
         return state
 
 class RetryCountBelowThreshold(Node):
     def Evaluate(self):
-        logging.debug("RetryCountBelowThreshold")
+        logging.warning("RetryCountBelowThreshold")
         return NodeState.FAILURE
     
 class DiscardTipSuccess(Node):
     def Evaluate(self):
-        logging.debug("DiscardTipSuccess")
+        logging.warning("DiscardTipSuccess")
         keyexpression = "Pipette/trigger?timestamp=123456789&event=discard_tip_success"
         _keyexpression = "TipChecker/trigger?timestamp=123456789&event=discard_tip_success"
         result = get_status(keyexpression)
@@ -371,5 +371,5 @@ class DiscardTipSuccess(Node):
                 state = NodeState.FAILURE
         else:
             state = NodeState.FAILURE
-        logging.debug("DiscardTipSuccess: {}".format(state))
+        logging.warning("DiscardTipSuccess: {}".format(state))
         return state

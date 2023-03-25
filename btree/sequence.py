@@ -1,4 +1,7 @@
 from btree.node import Node, NodeState # type: ignore
+import logging
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 class Sequence(Node):
     """
@@ -11,8 +14,10 @@ class Sequence(Node):
         anychildisrunning = False
         for child in self.children:
             childStatus = child.Evaluate()
+            logging.info("Child status: {} of child  {}".format(childStatus, child))
             if childStatus == NodeState.FAILURE:
                 state = NodeState.FAILURE
+                logging.debug("Returning state from sequence: {}".format(state))
                 return state
             elif childStatus == NodeState.SUCCESS:
                 continue
@@ -21,7 +26,9 @@ class Sequence(Node):
                 continue
             else:
                 state = NodeState.SUCCESS
+                logging.debug("Returning state from sequence: {}".format(state))
                 return state
             
         state = NodeState.RUNNING if anychildisrunning else NodeState.SUCCESS
+        logging.debug("Returning state from sequence: {}".format(state))
         return state

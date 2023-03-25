@@ -15,7 +15,7 @@ class TipChecker(Protocol):
 
 class Tip_checker:
     def caught_tip_firm_and_orient(self) -> str:
-        logging.debug("Checking if tip is caught, firm and oriented.")
+        #logging.debug("Checking if tip is caught, firm and oriented.")
         caughttipfirmandorient = btrees.Caught_tip_firm_and_orient()
         root = caughttipfirmandorient.SetUpTree()
         result = root.Evaluate()
@@ -26,7 +26,7 @@ class Tip_checker:
             return "TipChecker denied that tip does not caught firm and orient."
         
     def discard_tip_success(self) -> str:
-        logging.debug("Checking if tip is discarded successfully.")
+        #logging.debug("Checking if tip is discarded successfully.")
         discardtipsuccess = btrees.Discard_tip_success()
         root = discardtipsuccess.SetUpTree()
         result = root.Evaluate()
@@ -45,7 +45,7 @@ class Queryable:
 
     def trigger_queryable_handler(self, query: zenoh.Query) -> None:
         try:
-            logging.debug("Received query: {}".format(query.selector))
+            #logging.debug("Received query: {}".format(query.selector))
             event = query.selector.decode_parameters()
             result = self.check_status(self.tip_checker, event['event'])
             if result == "Accepted":
@@ -54,6 +54,9 @@ class Queryable:
                 payload = {"response_type":"Rejected","response":result}
         except ValueError as e:
             payload = {"response_type":"Rejected","response": "{}".format(e)}
+        
+
+        logging.debug("Sending response: {} for event {}".format(payload, event['event']))
         query.reply(zenoh.Sample("TipChecker/trigger", payload))
 
 
