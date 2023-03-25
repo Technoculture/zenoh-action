@@ -9,12 +9,40 @@ class Workflow_btree(tree.Tree):
             sequence.Sequence([
                     selector.Selector([btree_classes.TipAvailable()]),
                     sequence.Sequence([
-                        selector.Selector([btree_classes.TipAvailableInTray()]),
-                        selector.Selector([btree_classes.MoveTipSliderToPos()])
+                        selector.Selector([btree_classes.TipAvailableInTray(),
+                            sequence.Sequence([
+                                btree_classes.DiscardCurrentTray(),
+                                selector.Selector([btree_classes.DiscardSuccess()]),
+                                sequence.Sequence([
+                                    selector.Selector([btree_classes.TrayAvailable()]),
+                                    btree_classes.SliderMoveToLoad(),
+                                    btree_classes.LoadNextTray()
+                                ]),
+                                selector.Selector([btree_classes.LoadSuccess()]),
+                                ])
+                        ]),
+                        selector.Selector([btree_classes.MoveTipSliderToPos(),
+                            sequence.Sequence([
+                                selector.Selector([btree_classes.AlreadyInPos()]),
+                                btree_classes.MoveTipSlider(),
+                                selector.Selector([btree_classes.SliderReached()])
+                                ])
+                            ])
                     ]),
                     sequence.Sequence([
-                        selector.Selector([btree_classes.PickUp()]),
-                        selector.Selector([btree_classes.CaughtTipFirmAndOriented()])
+                        btree_classes.PickUp(),
+                        selector.Selector([btree_classes.CaughtTipFirmAndOriented(),
+                            selector.Selector([
+                                sequence.Sequence([
+                                    btree_classes.GoToDiscardPos(),
+                                    btree_classes.PrepareToDiscard(),
+                                    btree_classes.EjectTip(),
+                                    selector.Selector([btree_classes.DiscardTipSuccess(),
+                                        selector.Selector([btree_classes.RetryCountBelowThreshold()])
+                                    ])
+                                ])
+                            ])
+                        ])
                     ]),
                     selector.Selector([btree_classes.PickupSuccess()])
                 ]),
@@ -28,12 +56,12 @@ class Workflow_btree(tree.Tree):
 class Tip_Available_In_Tray(tree.Tree):
     def SetUpTree(self):
         root = sequence.Sequence([
-            selector.Selector([btree_classes.DiscardCurrentTray()]),
+            btree_classes.DiscardCurrentTray(),
             selector.Selector([btree_classes.DiscardSuccess()]),
             sequence.Sequence([
                 selector.Selector([btree_classes.TrayAvailable()]),
-                selector.Selector([btree_classes.SliderMoveToLoad()]),
-                selector.Selector([btree_classes.LoadNextTray()])
+                btree_classes.SliderMoveToLoad(),
+                btree_classes.LoadNextTray()
             ]),
             selector.Selector([btree_classes.LoadSuccess()]),
         ])
@@ -43,7 +71,7 @@ class Move_tip_slider_to_pos(tree.Tree):
     def SetUpTree(self):
         root = sequence.Sequence([
             selector.Selector([btree_classes.AlreadyInPos()]),
-            selector.Selector([btree_classes.MoveTipSlider()]),
+            btree_classes.MoveTipSlider(),
             selector.Selector([btree_classes.SliderReached()])
         ])
         return root
@@ -57,10 +85,15 @@ class Caught_tip_firm_and_orient(tree.Tree):
     def SetUpTree(self):
         root = selector.Selector([
             sequence.Sequence([
-                selector.Selector([btree_classes.GoToDiscardPos()]),
-                selector.Selector([btree_classes.PrepareToDiscard()]),
-                selector.Selector([btree_classes.EjectTip()]),
+                btree_classes.GoToDiscardPos(),
+                btree_classes.PrepareToDiscard(),
+                btree_classes.EjectTip(),
                 selector.Selector([btree_classes.DiscardTipSuccess()])
             ])
         ])
         return root
+    
+if __name__ == "__main__":
+    _tree = Workflow_btree()
+    root = _tree.SetUpTree()
+    print(root.children)
