@@ -92,8 +92,3 @@ class Caught_tip_firm_and_orient(tree.Tree):
             ])
         ])
         return root
-    
-if __name__ == "__main__":
-    _tree = Workflow_btree()
-    root = _tree.SetUpTree()
-    print(root.children)
